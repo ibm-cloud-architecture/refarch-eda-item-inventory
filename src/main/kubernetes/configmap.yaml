@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: item-aggregator-cm
+data:
+    KAFKA_USER: tls-user
+    KAFKA_BROKERS: minimal-prod-kafka-bootstrap.eventstreams.svc:9093

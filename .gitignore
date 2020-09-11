@@ -1,0 +1,6 @@
+docker-compose.yaml
+certs/
+e2e/es-cert.pem
+.env
+e2e/kafka/__pycache__/
+target/

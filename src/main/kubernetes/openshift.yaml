@@ -1,0 +1,78 @@
+# deploy on openshift same namespace should have secret with name `kafka-config` with two key value pair 
+## kafka-bootstrap-server="XXXX"
+## kafka-api-key="XXXXX"
+# you can create this using 
+## 
+# oc create secret generic kafka-config --from-literal kafka-bootstrap-server=XXXXXXXX --from-literal kafka-api-key=XXXXXXXX
+# or 
+# kubectl create secret generic kafka-config --from-literal kafka-bootstrap-server=XXXXXXXX --from-literal kafka-api-key=XXXXXXXX
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: item-aggregator
+  labels:
+    app: item-aggregator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: item-aggregator
+  template:
+    metadata:
+      labels:
+        app: item-aggregator
+    spec:
+      containers:
+      - name: item-aggregator
+        image: ibmcase/item-aggregator:0.0.5
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: KAFKA_BROKERS
+          valueFrom:
+            configMapKeyRef:
+              key: KAFKA_BROKERS
+              name: item-aggregator-cm
+        - name: KAFKA_USER
+          valueFrom:
+            configMapKeyRef:
+              key: KAFKA_USER
+              name: item-aggregator-cm
+        - name: KAFKA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: user.password
+              name: tls-user
+        - name: KAFKA_CERT_PATH
+          value: /deployments/certs/server/ca.p12
+        - name: KAFKA_CERT_PWD
+          valueFrom:
+            secretKeyRef:
+              key: ca.password
+              name: minimal-prod-cluster-ca-cert
+        - name: USER_CERT_PATH
+          value: /deployments/certs/user/user.p12
+        - name: USER_CERT_PWD
+          valueFrom:
+            secretKeyRef:
+              key: user.password
+              name: tls-user
+        volumeMounts:
+          - mountPath: /deployments/certs/server
+            name: es-cert
+            readOnly: true
+          - mountPath: /deployments/certs/user
+            name: user-cert
+            readOnly: true
+      volumes:
+        - name: user-cert
+          secret:
+            secretName: tls-user
+        - name: es-cert
+          secret:
+            secretName: minimal-prod-cluster-ca-cert
+      version: 1.0.0
+    
+
