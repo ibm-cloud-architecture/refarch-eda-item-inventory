@@ -51,25 +51,6 @@ public class StoreInventoryAgent {
     KeyValueBytesStoreSupplier storeSupplier = Stores.persistentKeyValueStore(STOCKS_STORE_NAME);
 
 
-    /*
-    This code may be used when we need to start the topology when the application start.
-    the current problem of this code is that it has to define config by code. And not leverage CDI
-    public void onStart(@Observes StartupEvent event) {
-        final StreamsBuilder builder = new StreamsBuilder();
-        Topology t = buildTopology(builder);
-        final Properties props = new Properties();
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, ConfigProvider.getConfig().getValue("quarkus.kafka-streams.application-id",String.class));
-        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, ConfigProvider.getConfig().getValue("quarkus.kafka-streams.bootstrap-servers", String.class));
-       
-        streams = new KafkaStreams(t, props);
-        streams.start();
-    }
-
-    void onStop(@Observes ShutdownEvent event) {
-        streams.close();
-    }
-*/
-
     /**
      * The topology process the items stream into two different paths: one
      * to compute the sum of items sold per item-id, the other to compute

@@ -24,11 +24,7 @@ Even if you do not want to build it yourself the approach to support the above u
 
 ## In a hurry, just run it
 
-* Be sure to have created the following topics on your Event Streams instance:
-  * `items` topic with 3 partitions created
-  * `inventory` topic with one partition
-
-* Get the credentials and TLS certificate from Event Streams on OpenShift. Example below uses the `tls-user`, and IBM Event Streams is deployed under the OpenShift project `eventstreams`:
+* Connect to IBM Event Streams via CLI: It is deployed on OpenShift under the `eventstreams` project:
 
   ```shell
   oc login
@@ -42,53 +38,29 @@ Even if you do not want to build it yourself the approach to support the above u
 
   Get the `Event Streams bootstrap external address` from the output of previous command and update the KAFKA_BROKERS variable in `.env` file in this repository.
 
-  See existing users:
+* Be sure to have created the following topics on your Event Streams instance:
+  * `items` topic with 3 partitions created
+  * `inventory` topic with one partition
 
   ```shell
-  oc get Kafkausers -n eventstreams
-  ```
+ cloudctl es topic-create --name items --partitions 3 --replication-factor 3
+ cloudctl es topic-create --name inventory --partitions 1 --replication-factor 3
+ cloudctl es topics
+ ```
 
-* Get server TLS certificate as Truststore in PKCS12 format with the command:
-
-  ```shell
-  cd certs
-  # get the truststore password and the .p12 file
-  cloudctl es certificates --format p12
-  ```
-
-  The cluster public certificate is required for all external connections and is available to download from the Cluster connection panel under the Certificates heading. Upon downloading the PKCS12 certificate, the certificate password will also be displayed.
-
-  As an alternate technique, you can search for the cluster certificate secret and get the certificate with:
-
-  ```shell
-  oc get secret -n eventstreams | grep cluster-ca-cert
-  minimal-prod-cluster-ca-cert 
-  oc get secret minimal-prod-cluster-ca-cert  -n eventstreams -o jsonpath='{.data.ca\.p12}' | base64 --decode > es-cert.p12
-  # and password
-  oc get secret minimal-prod-cluster-ca-cert -n eventstreams -o jsonpath='{.data.ca\.password}' | base64 --decode
-  ```
+* Get the scram user credentials and TLS certificate from Event Streams on OpenShift.  See the [note here](https://ibm-cloud-architecture.github.io/refarch-eda/use-cases/overview/pre-requisites#getting-tls-authentication-from-event-streams-on-openshift)
 
   Modify KAFKA_CERT_PWD in the `.env` file.
-
-* Get the user client certificate and password
-
-  ```shell
-  cd certs
-  oc get secret tls-user -n eventstreams -o jsonpath='{.data.user\.p12}' | base64 --decode > user.p12
-  oc get secret tls-user -n eventstreams -o jsonpath='{.data.user\.password}' | base64 --decode
-  ```
-
-  Modify USER_CERT_PWD in the `.env` file
-
 * Update a .env file with the environment variables:
 
 ```
 KAFKA_BROKERS=...-kafka-bootstrap-eventstreams.....containers.appdomain.cloud:443
-KAFKA_USER=tls-user
+KAFKA_USER=app-demo
 KAFKA_CERT_PATH=${PWD}/certs/es-cert.p12
 KAFKA_CERT_PWD=
-USER_CERT_PATH=${PWD}/certs/user.p12
-USER_CERT_PWD=
+# only if you use a TLS user
+# USER_CERT_PATH=${PWD}/certs/user.p12
+# USER_CERT_PWD=
 ```
 
 Start the app in dev mode after doing the `source .env` command to set environment variables.
@@ -135,7 +107,6 @@ So the operation to take this <storeName, item> record to inventory, and update 
             .withKeySerde(Serdes.String())
             .withValueSerde(inventorySerde));
 ```
-
 
 First row is to initialize new key, record with an empty Inventory object. 
 The second row is executed when a key is found (first key too), and update the currentInventory with the new quantity from the item. The outcome of this is a Ktable<storeName, Inventory> 
@@ -186,7 +157,7 @@ The integration tests use Python scripts. We have a custom python docker images 
 * under e2e folder get the Event Streams certificate in pem format:
 
 ```shell
-cloudctl es certificates --format pem
+cloudctl es certificates --format pem > e2e/es-cert.pem
 ```
 
 * Start the python environment to send 2 items. Under `e2e` folder, execute following command to start the python environment connected to the docker network where Kafka is running:
@@ -194,9 +165,9 @@ cloudctl es certificates --format pem
 ```shell
 # if not done set the env variables
 source .env
-docker run -v $(pwd)/e2e:/home -e Kafka_BROKERS=$Kafka_BROKERS \
-   -e Kafka_USER=$Kafka_USER -e Kafka_PASSWORD=$Kafka_PASSWORD \
-   -e Kafka_CERT_PATH=/home/es-cert.pem \
+docker run -v $(pwd)/e2e:/home -e KAFKA_BROKERS=$KAFKA_BROKERS \
+   -e KAFKA_USER=$KAFKA_USER -e KAFKA_PASSWORD=$KAFKA_PASSWORD \
+   -e KAFKA_CERT_PATH=/home/es-cert.pem \
       -ti ibmcase/python37 bash
 ```
 
@@ -221,7 +192,7 @@ INFO.. - Message delivered to items [0]
 * Using the REST api we can see the current stock for the store `Store-1` and the item
 
 ```shell
-curl http://localhost:8002/inventory/store/Store-1/Item-2
+curl http://localhost:8080/inventory/store/Store-1/Item-2
 
 # should get a result like:
 {
