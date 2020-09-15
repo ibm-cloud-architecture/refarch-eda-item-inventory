@@ -49,18 +49,18 @@ Even if you do not want to build it yourself the approach to support the above u
   * `items` topic with 3 partitions created
   * `inventory` topic with one partition
 
-  ```shell
+```shell
  cloudctl es topic-create --name items --partitions 3 --replication-factor 3
  cloudctl es topic-create --name inventory --partitions 1 --replication-factor 3
  cloudctl es topics
- ```
+```
 
 * Get the scram user credentials and TLS certificate from Event Streams on OpenShift.  See the [note here](https://ibm-cloud-architecture.github.io/refarch-eda/use-cases/overview/pre-requisites#getting-tls-authentication-from-event-streams-on-openshift)
 
   Modify KAFKA_CERT_PWD in the `.env` file.
 * Update a .env file with the environment variables:
 
-```
+```shell
 KAFKA_BROKERS=...-kafka-bootstrap-eventstreams.....containers.appdomain.cloud:443
 KAFKA_USER=app-demo
 KAFKA_CERT_PATH=${PWD}/certs/es-cert.p12
@@ -83,7 +83,7 @@ The application should be connected to Kafka and get visibility to the items and
 
 The approach is to get items stream and get the store name as new key and group by this new key.
 
-```
+```java
 builder.stream(itemSoldTopicName, 
                         Consumed.with(Serdes.String(), itemSerde))
             // use store name as key
@@ -212,11 +212,11 @@ The API is visible via the swagger-ui: `http://localhost:8080/swagger-ui/`
 
 * Select one of the existing Kafka users with TLS authentication or create a new one from the Event Streams console, with the produce, consume messages and create topic and schemas authorizations, on all topics or topic with a specific prefix, on all consumer groups or again with a specific prefix, all transaction IDs.
 
- ```shell
- # if not logged yes to your openshift cluster where the docker private registry resides do:
+```shell
+# if not logged yes to your openshift cluster where the docker private registry resides do:
 oc login --token=... --server=https://c...
- oc get kafkausers -n eventstreams
- ```
+oc get kafkausers -n eventstreams
+```
 
 We use a user with TLS authentication named: `tls-user`
 
@@ -225,6 +225,13 @@ We use a user with TLS authentication named: `tls-user`
 ```shell
 oc get secret  tls-user -n eventstreams --export -o yaml | oc apply -f -
 ```
+
+* Copy the server side TLS certificate to your project:
+
+```shell
+oc get secret  sandbox-cluster-ca-cert -n eventstreams --export -o yaml | oc apply -f -
+```
+
 
 * Build and push the image to public registry
 
