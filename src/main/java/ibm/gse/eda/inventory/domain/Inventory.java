@@ -1,6 +1,7 @@
 package ibm.gse.eda.inventory.domain;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
@@ -22,7 +23,7 @@ public class Inventory {
 
     public Inventory updateStockQuantity(String k, Item newValue) {
         this.storeName = k;
-        if (newValue.type.equals("SALE")) 
+        if (newValue.type.equals(Item.SALE)) 
             newValue.quantity=-newValue.quantity;
         return this.updateStock(newValue.sku,newValue.quantity);
     }
@@ -37,4 +38,11 @@ public class Inventory {
         return this;
     }
 
+    public String toString(){
+        String s = "{ store: + " + storeName + "}";
+        for (Map.Entry<String, Long> entry : stock.entrySet()) {
+           s = s + entry.getKey() + " : " + entry.getValue();
+        }
+        return s;
+    }
 }

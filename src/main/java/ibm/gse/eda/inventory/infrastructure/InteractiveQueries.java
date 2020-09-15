@@ -47,7 +47,7 @@ public class InteractiveQueries {
         LOG.warnv("Search metadata for key {0}", storeID);
         try {
             metadata = streams.queryMetadataForKey(
-            StoreInventoryAgent.STOCKS_STORE_NAME,
+                StoreInventoryAgent.STOCKS_STORE_NAME,
                 storeID,
                 Serdes.String().serializer());
         } catch (Exception e) {
@@ -82,45 +82,4 @@ public class InteractiveQueries {
             }
         }
     }
-
-    private ReadOnlyKeyValueStore<String, Long> getItemStore() {
-        while (true) {
-            try {
-                StoreQueryParameters<ReadOnlyKeyValueStore<String,Long>> parameters = StoreQueryParameters.fromNameAndType(StoreInventoryAgent.ITEMS_STORE_NAME,QueryableStoreTypes.keyValueStore());
-                return streams.store(parameters);
-             } catch (InvalidStateStoreException e) {
-                // ignore, store not ready yet
-            }
-        }
-    }
-
-	public ItemQueryResult getItemStock(String sku) {
-        KeyQueryMetadata metadata = null;
-        LOG.warnv("Search metadata for key {0}", sku);
-        try {
-            metadata = streams.queryMetadataForKey(
-            StoreInventoryAgent.ITEMS_STORE_NAME,
-            sku,
-            Serdes.String().serializer());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ItemQueryResult.notFound();
-        }
-        if (metadata == null || metadata == KeyQueryMetadata.NOT_AVAILABLE) {
-            LOG.warnv("Found no metadata for key {0}", sku);
-            return ItemQueryResult.notFound();
-        } else if (metadata.getActiveHost().host().equals(host)) {
-            LOG.infov("Found data for key {0} locally", sku);
-            Long result = getItemStore().get(sku);
-
-            if (result != null) {
-                return ItemQueryResult.found(result);
-            } else {
-                return ItemQueryResult.notFound();
-            }
-        } else {
-            LOG.infov("Found data for key {0} on remote host {1}:{2}", sku, metadata.getActiveHost().host(), metadata.getActiveHost().port());
-            return ItemQueryResult.foundRemotely(metadata.getActiveHost());
-        }
-	}
 }

@@ -1,7 +1,7 @@
 # Item aggregator component
 
 This project illustrates combining Kafka streams with reactive programming, reactive messaging with Quarkus.
-The use case is around getting item sold events and build a real time inventory in kafka streams exposed via REST on top of sequential queries. 
+The use case is around getting item sold events and build a real time inventory in kafka streams exposed via REST on top of sequential queries.
 
 The project can be used as a lab to build the following features:
 
@@ -10,7 +10,14 @@ The project can be used as a lab to build the following features:
 * aggregate item id -> total sold so far
 * generate events on inventory topic using storeID -> [items] in stock
 
-or can be used as-is from the docker image: [ibmcase/item-aggregator](https://hub.docker.com/repository/docker/ibmcase/item-aggregator) to demonstrate Kafka streams or to be integrated in a bigger end to end scenario with Kafka connect (See [this scenario](https://ibm-cloud-architecture.github.io/refarch-eda/scenarios/realtime-inventory/)).  
+
+Here is a simple diagram to illustrate the components used:
+
+ ![1](https://github.com/ibm-cloud-architecture/refarch-eda/blob/master/docs/src/pages/use-cases/kafka-streams/lab-3/images/item-aggregator-ctx.png)
+
+The goal of this repo, is to support running those components.
+
+You can use our as-is docker image: [ibmcase/item-aggregator](https://hub.docker.com/repository/docker/ibmcase/item-aggregator) to demonstrate Kafka streams or to be integrated in a bigger end to end scenario with Kafka connect (See [this scenario](https://ibm-cloud-architecture.github.io/refarch-eda/scenarios/realtime-inventory/)).  
 
 ## Kafka Streams approach
 
@@ -154,11 +161,7 @@ To build it yourself we have documented a [separate tutorial here](https://ibm-c
 
 The integration tests use Python scripts. We have a custom python docker images (ibmcase/python37) with the necessary Kafka and pandas libraries to execute the tests.
 
-* under e2e folder get the Event Streams certificate in pem format:
-
-```shell
-cloudctl es certificates --format pem > e2e/es-cert.pem
-```
+* under e2e folder get the Event Streams certificate in `pem format` from Event Streams 'connect to this cluster` and save it under `e2e` folder.
 
 * Start the python environment to send 2 items. Under `e2e` folder, execute following command to start the python environment connected to the docker network where Kafka is running:
 
@@ -185,7 +188,7 @@ INFO:root:Send {"storeName": "Store-1", "itemCode": "Item-2", "type": "SALE", "q
 INFO.. - Message delivered to items [0]
 ```
 
-* After these two records published we can validate the Event Streams console:
+* After these two records are published, we can validate the Event Streams console:
   * The consumer groups has 3 active members as there are three Kafka stream tasks running.
   * One of the task has processed the partition 1 where e2 records were sent.  
   * The inventory topic has 2 records published.
@@ -197,7 +200,7 @@ curl http://localhost:8080/inventory/store/Store-1/Item-2
 # should get a result like:
 {
   "stock": {
-    "Item-2": 7
+    "Item-2": 3
   },
   "storeName": "Store-1"
 }
@@ -207,7 +210,7 @@ The API is visible via the swagger-ui: `http://localhost:8080/swagger-ui/`
 
 ## Deploy on OpenShift cluster with Event Streams
 
-* Select one of the Kafka users with TLS authentication defined or create a new one with the produce, consume messages and create topic and schemas authorizations, on all topics or topic with a specific prefix, on all consumer groups or again with a specific prefix, all transaction IDs.
+* Select one of the existing Kafka users with TLS authentication or create a new one from the Event Streams console, with the produce, consume messages and create topic and schemas authorizations, on all topics or topic with a specific prefix, on all consumer groups or again with a specific prefix, all transaction IDs.
 
  ```shell
  # if not logged yes to your openshift cluster where the docker private registry resides do:
@@ -215,18 +218,12 @@ oc login --token=... --server=https://c...
  oc get kafkausers -n eventstreams
  ```
 
-We use a user with TLS authentication named: ` tls-user`
+We use a user with TLS authentication named: `tls-user`
 
 * Copy user's secret to the current project where the application will run
 
 ```shell
 oc get secret  tls-user -n eventstreams --export -o yaml | oc apply -f -
-```
-
-* Define config map for Kafka broker URL and user name: update the file [src/main/kubernetes/configmap.yaml]()
-
-```
-oc apply -f src/main/kubernetes/configmap.yaml
 ```
 
 * Build and push the image to public registry

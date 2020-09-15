@@ -1,8 +1,5 @@
 package ibm.gse.eda.inventory.infrastructure;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
@@ -14,8 +11,10 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Grouped;
+import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.Printed;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.state.KeyValueBytesStoreSupplier;
 import org.apache.kafka.streams.state.KeyValueStore;
@@ -74,22 +73,13 @@ public class StoreInventoryAgent {
                 Materialized.<String,Inventory,KeyValueStore<Bytes,byte[]>>as(StoreInventoryAgent.STOCKS_STORE_NAME)
                     .withKeySerde(Serdes.String())
                     .withValueSerde(inventorySerde));
-            inventory.toStream()
-            .to(inventoryStockTopicName,
+            // generate to inventory topic
+            KStream<String, Inventory> inventories = inventory.toStream();
+            inventories.print(Printed.toSysOut());
+
+            inventories.to(inventoryStockTopicName,
                 Produced.with(Serdes.String(),inventorySerde));
       
-            // accumulate the sum of items sold
-            builder.stream(inventoryStockTopicName, Consumed.with(Serdes.String(), inventorySerde))
-                .flatMap( (k,v) ->  { 
-                    List<KeyValue<String,Long>> result = new LinkedList<>();
-                    v.stock.forEach( (k2,v2) ->  result.add(new KeyValue<String,Long>(k2,-v2)));
-                    return result;
-                    } )
-                .groupByKey(Grouped.with(Serdes.String(), Serdes.Long()))
-                .reduce(Long::sum,
-                    Materialized.<String,Long,KeyValueStore<Bytes,byte[]>>as(ITEMS_STORE_NAME)
-                    .withKeySerde(Serdes.String())
-                    .withValueSerde(Serdes.Long()));
         return builder.build();
     }
 

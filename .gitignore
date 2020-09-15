@@ -4,3 +4,4 @@ e2e/es-cert.pem
 .env
 e2e/kafka/__pycache__/
 target/
+scripts/output.properties
