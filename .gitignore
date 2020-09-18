@@ -1,7 +1,8 @@
-docker-compose.yaml
 certs/
 e2e/es-cert.pem
 .env
 e2e/kafka/__pycache__/
 target/
 scripts/output.properties
+e2e/cp4I.pem
+src/main/resources/es-cert.p12

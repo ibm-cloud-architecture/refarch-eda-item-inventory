@@ -194,6 +194,7 @@ INFO.. - Message delivered to items [0]
   * The inventory topic has 2 records published.
 * Using the REST api we can see the current stock for the store `Store-1` and the item
 
+
 ```shell
 curl http://localhost:8080/inventory/store/Store-1/Item-2
 
@@ -241,4 +242,25 @@ docker build -f src/main/docker/Dockerfile.jvm -t ibmcase/item-aggregator:0.0.2 
 docker push ibmcase/item-aggregator:0.0.2
 # build with s2i and push the image to private registry
 ./mvnw clean package -DQuarkus.kubernetes.deploy=true
+```
+
+
+## Running distributed mode on your latop with docker-compose
+```shell
+# runs three insance of your applicaiton with load balancer using nginx. this will be taken care by routes, services on openshift
+docker-compose up --scale item-intentory=3
+```
+* Using the REST api we can see the current stock for the store `Store-1` and the item
+
+
+```shell
+curl http://localhost:4000/inventory/store/Store-1
+
+# should get a result like:
+{
+  "stock": {
+    "Item-2": 3
+  },
+  "storeName": "Store-1"
+}
 ```
