@@ -62,7 +62,6 @@ public class StoreInventoryAgent {
         KTable<String,Inventory> inventory = builder.stream(itemSoldTopicName, 
                         Consumed.with(Serdes.String(), itemSerde))
             // use store name as key
-            .map((k,v) ->  new KeyValue<>(v.storeName, v))
             .groupByKey(Grouped.with(Serdes.String(),itemSerde))
             // update the current stock for this store - item pair
             // change the value type

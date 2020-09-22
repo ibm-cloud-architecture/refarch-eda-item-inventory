@@ -23,7 +23,7 @@ public class Inventory {
 
     public Inventory updateStockQuantity(String k, Item newValue) {
         this.storeName = k;
-        if (newValue.type.equals(Item.SALE)) 
+        if (newValue.type != null && Item.SALE.equals(newValue.type))
             newValue.quantity=-newValue.quantity;
         return this.updateStock(newValue.sku,newValue.quantity);
     }

@@ -9,31 +9,36 @@ class KafkaConsumer:
                 kafka_user = "", 
                 kafka_pwd = "", 
                 kafka_cacert = "", 
+                kafka_sasl_mechanism = "", 
                 topic_name = "", 
                 autocommit = True,
                 fromWhere = 'earliest'):
         self.kafka_brokers = kafka_brokers
-        self.kafka_apikey = kafka_apikey
+        self.kafka_user = kafka_user
+        self.kafka_pwd = kafka_pwd
         self.kafka_cacert = kafka_cacert
+        self.kafka_sasl_mechanism = kafka_sasl_mechanism
         self.topic_name = topic_name
         self.fromWhere = fromWhere
         self.kafka_auto_commit = autocommit
-        prepare()
+        
 
     def prepare(self, groupID = "pythonconsumers"):
         options ={
                 'bootstrap.servers':  self.kafka_brokers,
                 'group.id': groupID,
-                 'auto.offset.reset': self.fromWhere,
+                'auto.offset.reset': self.fromWhere,
                 'enable.auto.commit': self.kafka_auto_commit,
         }
-        if (self.kafka_apikey != ''):
+        if (self.kafka_user != ''):
             options['security.protocol'] = 'SASL_SSL'
-            options['sasl.mechanisms'] = 'PLAIN'
-            options['sasl.username'] = 'token'
-            options['sasl.password'] = self.kafka_apikey
-        if (self.kafka_cacert != ''):
+            options['sasl.mechanisms'] = self.kafka_sasl_mechanism
+            options['sasl.username'] = self.kafka_user
+            options['sasl.password'] = self.kafka_pwd
+        
+        if (self.kafka_cacert != '' ):
             options['ssl.ca.location'] = self.kafka_cacert
+       
         print("[KafkaConsumer] - This is the configuration for the consumer:")
         print('[KafkaConsumer] - {}'.format(options))
         self.consumer = Consumer(options)

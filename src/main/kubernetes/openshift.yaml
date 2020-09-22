@@ -5,6 +5,7 @@ metadata:
   labels:
     app: item-aggregator
 spec:
+  replicas: 2
   template:
     metadata:
       labels:
