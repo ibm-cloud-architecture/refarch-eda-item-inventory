@@ -47,6 +47,9 @@ public class ItemStream {
 		return Grouped.with(Serdes.String(),itemSerde);
     }
     
+    /**
+     * Create a key-value store named ITEMS_STORE_NAME for item current stock count
+     */
     public static Materialized<String,Long,KeyValueStore<Bytes,byte[]>> materializeAsItemGlobalCountStore(){
         return Materialized.<String,Long,KeyValueStore<Bytes,byte[]>>as(ITEMS_STORE_NAME)
         .withKeySerde(Serdes.String())

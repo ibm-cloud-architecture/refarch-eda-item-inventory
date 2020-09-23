@@ -23,7 +23,7 @@ public class InventoryResource {
     private final Client client = ClientBuilder.newBuilder().build();
 
     @Inject
-    public StoreInventoryQueries queries;
+    public StoreInventoryQueries inventoryQueries;
 
     @Inject
     public ItemCountQueries itemQueries;
@@ -32,12 +32,13 @@ public class InventoryResource {
     @Path("/store/{storeID}")
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<InventoryQueryResult> getStock(@PathParam("storeID") String storeID) {
-        InventoryQueryResult result = queries.getStoreStock(storeID);
+        InventoryQueryResult result = inventoryQueries.getStoreStock(storeID);
         if (result.getResult().isPresent()) {
             System.out.println("result: " + result.getResult().get().storeName);
             return Uni.createFrom().item(result);
         } else if (result.getHost().isPresent()) {
-            System.out.println("data found remotly " + result.getHost());
+            System.out.println("data is remote on " + result.getHost());
+            // this is a questionable implementation. here for demo purpose.
             return queryRemoteInventoryStore(result.getHost().get(), result.getPort().getAsInt(), storeID);
         } else {
             return Uni.createFrom().item(InventoryQueryResult.notFound());
@@ -45,10 +46,10 @@ public class InventoryResource {
     }
 
     @GET
-    @Path("/meta-data")
+    @Path("/store/meta-data")
     @Produces(MediaType.APPLICATION_JSON)
-    public Multi<PipelineMetadata> getMetaData() {
-        return Multi.createFrom().items(queries.getStoreInventoryStoreMetadata().stream());
+    public Multi<PipelineMetadata> getStoreMetaData() {
+        return Multi.createFrom().items(inventoryQueries.getStoreInventoryStoreMetadata().stream());
     }
 
     @GET
@@ -60,11 +61,19 @@ public class InventoryResource {
             System.out.println(itemID + " has " + result.getResult().get());
             return Uni.createFrom().item(result);
         } else if (result.getHost().isPresent()) {
-            System.out.println("data found remotly " + result.getHost());
+            System.out.println("data is remote on " + result.getHost());
+            // this is a questionable implementation. here for demo purpose.
             return queryRemoteItemCountStore(result.getHost().get(), result.getPort().getAsInt(), itemID);
         } else {
             return Uni.createFrom().item(ItemCountQueryResult.notFound());
         }
+    }
+
+    @GET
+    @Path("/item/meta-data")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Multi<PipelineMetadata> getItemMetaData() {
+        return Multi.createFrom().items(itemQueries.getItemCountStoreMetadata().stream());
     }
 
     private Uni<InventoryQueryResult> queryRemoteInventoryStore(final String host, final int port, String storeId) {

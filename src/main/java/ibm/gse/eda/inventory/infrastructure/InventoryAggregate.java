@@ -53,6 +53,10 @@ public class InventoryAggregate {
         return builder.stream(inventoryStockOutputStreamName, Consumed.with(Serdes.String(), inventorySerde));
     }
 
+    /**
+     * Create a key value store named INVENTORY_STORE_NAME to persist store inventory
+     * @return
+     */
     public static Materialized<String, Inventory, KeyValueStore<Bytes, byte[]>> materializeAsInventoryStore() {
         return Materialized.<String, Inventory, KeyValueStore<Bytes, byte[]>>as(INVENTORY_STORE_NAME)
                 .withKeySerde(Serdes.String()).withValueSerde(inventorySerde);
