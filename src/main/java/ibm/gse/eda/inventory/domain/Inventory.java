@@ -39,9 +39,9 @@ public class Inventory {
     }
 
     public String toString(){
-        String s = "{ store: + " + storeName + "}";
+        String s = "{ storeID: " + storeName + ",";
         for (Map.Entry<String, Long> entry : stock.entrySet()) {
-           s = s + entry.getKey() + " : " + entry.getValue();
+           s = s + entry.getKey() + ": " + entry.getValue() + ",";
         }
         return s;
     }

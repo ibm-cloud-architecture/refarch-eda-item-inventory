@@ -1,4 +1,4 @@
-package ibm.gse.eda.inventory.infrastructure;
+package ibm.gse.eda.inventory.api;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,12 +17,15 @@ import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
+import ibm.gse.eda.inventory.api.dto.InventoryQueryResult;
+import ibm.gse.eda.inventory.api.dto.PipelineMetadata;
 import ibm.gse.eda.inventory.domain.Inventory;
+import ibm.gse.eda.inventory.infrastructure.InventoryAggregate;
 
 @ApplicationScoped
-public class InteractiveQueries {
+public class StoreInventoryQueries {
 
-    private static final Logger LOG = Logger.getLogger(InteractiveQueries.class);
+    private static final Logger LOG = Logger.getLogger(StoreInventoryQueries.class);
     
     @ConfigProperty(name = "hostname")
     String host;
@@ -30,8 +33,8 @@ public class InteractiveQueries {
     @Inject
     KafkaStreams streams;
 
-    public List<PipelineMetadata> getStockStoreMetaData() {
-        return streams.allMetadataForStore(StoreInventoryAgent.STOCKS_STORE_NAME)
+    public List<PipelineMetadata> getStoreInventoryStoreMetadata() {
+        return streams.allMetadataForStore(InventoryAggregate.INVENTORY_STORE_NAME)
                 .stream()
                 .map(m -> new PipelineMetadata(
                         m.hostInfo().host() + ":" + m.hostInfo().port(),
@@ -47,7 +50,7 @@ public class InteractiveQueries {
         LOG.warnv("Search metadata for key {0}", storeID);
         try {
             metadata = streams.queryMetadataForKey(
-                StoreInventoryAgent.STOCKS_STORE_NAME,
+                InventoryAggregate.INVENTORY_STORE_NAME,
                 storeID,
                 Serdes.String().serializer());
         } catch (Exception e) {
@@ -59,7 +62,7 @@ public class InteractiveQueries {
             return InventoryQueryResult.notFound();
         } else if (metadata.getActiveHost().host().equals(host)) {
             LOG.infov("Found data for key {0} locally", storeID);
-            Inventory result = getStockStore().get(storeID);
+            Inventory result = getInventoryStockStore().get(storeID);
 
             if (result != null) {
                 return InventoryQueryResult.found(result);
@@ -72,10 +75,10 @@ public class InteractiveQueries {
         }
     }
 
-    private ReadOnlyKeyValueStore<String, Inventory> getStockStore() {
+    private ReadOnlyKeyValueStore<String, Inventory> getInventoryStockStore() {
         while (true) {
             try {
-                StoreQueryParameters<ReadOnlyKeyValueStore<String,Inventory>> parameters = StoreQueryParameters.fromNameAndType(StoreInventoryAgent.STOCKS_STORE_NAME,QueryableStoreTypes.keyValueStore());
+                StoreQueryParameters<ReadOnlyKeyValueStore<String,Inventory>> parameters = StoreQueryParameters.fromNameAndType(InventoryAggregate.INVENTORY_STORE_NAME,QueryableStoreTypes.keyValueStore());
                 return streams.store(parameters);
              } catch (InvalidStateStoreException e) {
                 // ignore, store not ready yet

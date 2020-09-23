@@ -17,7 +17,9 @@ import org.junit.jupiter.api.Test;
 
 import ibm.gse.eda.inventory.domain.Inventory;
 import ibm.gse.eda.inventory.domain.Item;
-import ibm.gse.eda.inventory.infrastructure.StoreInventoryAgent;
+import ibm.gse.eda.inventory.domain.StoreInventoryAgent;
+import ibm.gse.eda.inventory.infrastructure.InventoryAggregate;
+import ibm.gse.eda.inventory.infrastructure.ItemStream;
 import io.quarkus.kafka.client.serialization.JsonbSerde;
 
 public class TestInventory {
@@ -28,7 +30,7 @@ public class TestInventory {
     private TestOutputTopic<String, Inventory> inventoryOutputTopic;
    
     private StoreInventoryAgent agent = new StoreInventoryAgent();
-
+ 
     private Serde<String> stringSerde = new Serdes.StringSerde();
     private JsonbSerde<Item> itemSerde = new JsonbSerde<>(Item.class);
     
@@ -48,14 +50,17 @@ public class TestInventory {
     @BeforeEach
     public void setup() {
         // as no CDI is used set the topic names
-        agent.itemSoldTopicName="itemSold";
-        agent.inventoryStockTopicName = "inventory";
-        Topology topology = agent.buildTopology();
+        agent.itemStream = new ItemStream();
+        agent.itemStream.itemSoldInputStreamName="itemSold";
+        agent.inventoryAggregate = new InventoryAggregate();
+        agent.inventoryAggregate.inventoryStockOutputStreamName = "inventory";
+        
+        Topology topology = agent.processItemStream();
         testDriver = new TopologyTestDriver(topology, getStreamsConfig());
-        inputTopic = testDriver.createInputTopic(agent.itemSoldTopicName, 
+        inputTopic = testDriver.createInputTopic(agent.itemStream.itemSoldInputStreamName, 
                                 stringSerde.serializer(),
                                 itemSerde.serializer());
-        inventoryOutputTopic = testDriver.createOutputTopic(agent.inventoryStockTopicName, 
+        inventoryOutputTopic = testDriver.createOutputTopic(agent.inventoryAggregate.inventoryStockOutputStreamName, 
                                 stringSerde.deserializer(), 
                                 inventorySerde.deserializer());
     }
@@ -73,9 +78,9 @@ public class TestInventory {
     public void shouldGetInventoryUpdatedQuantity(){
         //given an item is sold in a store
         Item item = new Item("Store-1","Item-1",Item.RESTOCK,5,33.2);
-        inputTopic.pipeInput(item.sku, item);        
+        inputTopic.pipeInput(item.storeName, item);        
         item = new Item("Store-1","Item-1",Item.SALE,2,33.2);
-        inputTopic.pipeInput(item.sku, item);
+        inputTopic.pipeInput(item.storeName, item);
 
         Assertions.assertFalse(inventoryOutputTopic.isEmpty()); 
         Assertions.assertEquals(5, inventoryOutputTopic.readKeyValue().value.stock.get("Item-1"));
@@ -86,12 +91,12 @@ public class TestInventory {
     public void shouldGetRestockQuantity(){
         //given an item is sold in a store
         Item item = new Item("Store-1","Item-1",Item.RESTOCK,5);
-        inputTopic.pipeInput(item.sku, item);        
+        inputTopic.pipeInput(item.storeName, item);        
         item = new Item("Store-1","Item-1",Item.RESTOCK,2);
-        inputTopic.pipeInput(item.sku, item);
+        inputTopic.pipeInput(item.storeName, item);
 
         Assertions.assertFalse(inventoryOutputTopic.isEmpty()); 
-        ReadOnlyKeyValueStore<String,Inventory> storage = testDriver.getKeyValueStore(agent.STOCKS_STORE_NAME);
+        ReadOnlyKeyValueStore<String,Inventory> storage = testDriver.getKeyValueStore(InventoryAggregate.INVENTORY_STORE_NAME);
         Inventory i = (Inventory)storage.get("Store-1");
        
         Assertions.assertEquals(7L,  i.stock.get("Item-1"));
@@ -100,13 +105,13 @@ public class TestInventory {
      
      }
 
-     /*
+     
      @Test
      public void shouldGetTwoItemsSold(){
          //given an item is sold in a store
          Item item = new Item("Store-1","Item-1",Item.SALE,2,33.2);
-         inputTopic.pipeInput(item.sku, item);
-         ReadOnlyKeyValueStore<String,Long> storage = testDriver.getKeyValueStore(agent.ITEMS_STORE_NAME);
+         inputTopic.pipeInput(item.storeName, item);
+         ReadOnlyKeyValueStore<String,Long> storage = testDriver.getKeyValueStore(ItemStream.ITEMS_STORE_NAME);
          Assertions.assertEquals(2, storage.get("Item-1"));
      }
      
@@ -115,11 +120,11 @@ public class TestInventory {
          //given an item is sold in a store
          Item itemSold1 = new Item("Store-1","Item-1",Item.SALE,2,33.2);
          Item itemSold2 = new Item("Store-2","Item-1",Item.SALE,3,30.2);
-         inputTopic.pipeInput(itemSold1.sku, itemSold1);
-         inputTopic.pipeInput(itemSold2.sku, itemSold2);
-         ReadOnlyKeyValueStore<String,Long> storage = testDriver.getKeyValueStore(agent.ITEMS_STORE_NAME);
+         inputTopic.pipeInput(itemSold1.storeName, itemSold1);
+         inputTopic.pipeInput(itemSold2.storeName, itemSold2);
+         ReadOnlyKeyValueStore<String,Long> storage = testDriver.getKeyValueStore(ItemStream.ITEMS_STORE_NAME);
          Assertions.assertEquals(5, storage.get("Item-1"));
      }
-     */
+     
  
 }

@@ -8,13 +8,11 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
-import ibm.gse.eda.inventory.infrastructure.InteractiveQueries;
-import ibm.gse.eda.inventory.infrastructure.InventoryQueryResult;
-import ibm.gse.eda.inventory.infrastructure.PipelineMetadata;
+import ibm.gse.eda.inventory.api.dto.InventoryQueryResult;
+import ibm.gse.eda.inventory.api.dto.ItemCountQueryResult;
+import ibm.gse.eda.inventory.api.dto.PipelineMetadata;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 
@@ -25,7 +23,10 @@ public class InventoryResource {
     private final Client client = ClientBuilder.newBuilder().build();
 
     @Inject
-    public InteractiveQueries queries;
+    public StoreInventoryQueries queries;
+
+    @Inject
+    public ItemCountQueries itemQueries;
 
     @GET
     @Path("/store/{storeID}")
@@ -37,7 +38,7 @@ public class InventoryResource {
             return Uni.createFrom().item(result);
         } else if (result.getHost().isPresent()) {
             System.out.println("data found remotly " + result.getHost());
-            return fetchReeferData(result.getHost().get(), result.getPort().getAsInt(), storeID);
+            return queryRemoteInventoryStore(result.getHost().get(), result.getPort().getAsInt(), storeID);
         } else {
             return Uni.createFrom().item(InventoryQueryResult.notFound());
         }
@@ -47,16 +48,42 @@ public class InventoryResource {
     @Path("/meta-data")
     @Produces(MediaType.APPLICATION_JSON)
     public Multi<PipelineMetadata> getMetaData() {
-        return Multi.createFrom().items(queries.getStockStoreMetaData().stream());
+        return Multi.createFrom().items(queries.getStoreInventoryStoreMetadata().stream());
     }
 
-    private Uni<InventoryQueryResult> fetchReeferData(final String host, final int port, String storeId) {
+    @GET
+    @Path("/item/{itemID}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Uni<ItemCountQueryResult> getItemCount(@PathParam("itemID") String itemID){
+        ItemCountQueryResult result = itemQueries.getItemGlobalStock(itemID);
+        if (result.getResult().isPresent()) {
+            System.out.println(itemID + " has " + result.getResult().get());
+            return Uni.createFrom().item(result);
+        } else if (result.getHost().isPresent()) {
+            System.out.println("data found remotly " + result.getHost());
+            return queryRemoteItemCountStore(result.getHost().get(), result.getPort().getAsInt(), itemID);
+        } else {
+            return Uni.createFrom().item(ItemCountQueryResult.notFound());
+        }
+    }
+
+    private Uni<InventoryQueryResult> queryRemoteInventoryStore(final String host, final int port, String storeId) {
         String url = String.format("http://%s:%d//inventory/store/%s", host, port, storeId);
         System.out.println("Data found on " + url);
         // System.out.println(url);
         InventoryQueryResult rep = client.target(url)
                 .request(MediaType.APPLICATION_JSON)
                 .get(InventoryQueryResult.class);
+        return Uni.createFrom().item(rep);
+    }
+
+    private Uni<ItemCountQueryResult> queryRemoteItemCountStore(final String host, final int port, String itemID) {
+        String url = String.format("http://%s:%d//inventory/item/%s", host, port, itemID);
+        System.out.println("Data found on " + url);
+        // System.out.println(url);
+        ItemCountQueryResult rep = client.target(url)
+                .request(MediaType.APPLICATION_JSON)
+                .get(ItemCountQueryResult.class);
         return Uni.createFrom().item(rep);
     }
 }

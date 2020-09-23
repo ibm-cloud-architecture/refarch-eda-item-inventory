@@ -1,4 +1,4 @@
-package ibm.gse.eda.inventory.infrastructure;
+package ibm.gse.eda.inventory.api.dto;
 
 import java.util.Optional;
 import java.util.OptionalInt;
