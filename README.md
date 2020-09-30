@@ -1,23 +1,17 @@
 # Item aggregator component
 
-This project illustrates combining Kafka streams with reactive programming, reactive messaging with Quarkus.
-The use case is around getting item sold events and build a real time inventory in kafka streams exposed via REST on top of sequential queries.
+This project illustrates combining Kafka Streams with reactive programming, reactive messaging with Quarkus.
+The goal of the kafka streams implementation is to build a real time inventory view from items sold in different stores. The aggregates are kept in state store and expose via interactive queries.
 
-The project can be used as a lab to build the following features:
-
-* create a Quarkus app using Microprofile reactive messaging to consume items sold in stores
-* aggregate store id -> item id -> item sold count
-* aggregate item id -> total sold so far
-* generate events on inventory topic using storeID -> [items] in stock
-
+The project is used as a Kafka Streams lab [documented here](https://ibm-cloud-architecture.github.io/refarch-eda/use-cases/kafka-streams/lab-3/) with instructions to build it from the beginning.
 
 Here is a simple diagram to illustrate the components used:
 
  ![1](https://github.com/ibm-cloud-architecture/refarch-eda/blob/master/docs/src/pages/use-cases/kafka-streams/lab-3/images/item-aggregator-ctx.png)
 
-The goal of this repo, is to support running those components.
+The goal of this note is to present how to run the solution locally using Strimzi Kafka image and two instances of the project.
 
-You can use our as-is docker image: [ibmcase/item-aggregator](https://hub.docker.com/repository/docker/ibmcase/item-aggregator) to demonstrate Kafka streams or to be integrated in a bigger end to end scenario with Kafka connect (See [this scenario](https://ibm-cloud-architecture.github.io/refarch-eda/scenarios/realtime-inventory/)).  
+You can use our docker image: [ibmcase/item-aggregator](https://hub.docker.com/repository/docker/ibmcase/item-aggregator) to demonstrate Kafka streams or to be integrated in a bigger end to end scenario with Kafka connect (See [this scenario](https://ibm-cloud-architecture.github.io/refarch-eda/scenarios/realtime-inventory/)).  
 
 ## Kafka Streams approach
 
@@ -31,20 +25,7 @@ Even if you do not want to build it yourself the approach to support the above u
 
 ## In a hurry, just run it
 
-* Connect to IBM Event Streams via CLI: It is deployed on OpenShift under the `eventstreams` project:
-
-  ```shell
-  oc login
-  cloudctl es init
-
-  Select an instance:
-  1. minimal-prod ( Namespace:eventstreams )
-  2. sandbox-rp ( Namespace:eventstreams )
-  Enter a number> 1
-  ```
-
-  Get the `Event Streams bootstrap external address` from the output of previous command and update the KAFKA_BROKERS variable in `.env` file in this repository.
-
+* Start local Kafka: `docker-compose up`.
 * Be sure to have created the following topics on your Event Streams instance:
   * `items` topic with 3 partitions created
   * `inventory` topic with one partition

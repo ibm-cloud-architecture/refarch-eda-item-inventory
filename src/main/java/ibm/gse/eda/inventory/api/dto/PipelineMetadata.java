@@ -11,4 +11,6 @@ public class PipelineMetadata {
         this.host = host;
         this.partitions = partitions;
     }
+
+    public PipelineMetadata(){}
 }

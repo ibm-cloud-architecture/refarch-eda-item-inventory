@@ -13,6 +13,12 @@ public class InventoryQueryResult {
     private final String host;
     private final Integer port;
 
+    public InventoryQueryResult(){
+        result = null;
+        host="localhost";
+        port=8080;
+    }
+
     public InventoryQueryResult(Inventory result, String host, Integer port) {
         this.result = result;
         this.host = host;

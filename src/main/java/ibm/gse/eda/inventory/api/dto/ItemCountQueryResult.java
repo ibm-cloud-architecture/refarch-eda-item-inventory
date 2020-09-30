@@ -11,6 +11,12 @@ public class ItemCountQueryResult {
     private final String host;
     private final Integer port;
 
+    public ItemCountQueryResult(){
+        result = 0L;
+        host="localhost";
+        port=8080;
+    }
+
     public ItemCountQueryResult(Long result, String host, Integer port) {
         this.result = result;
         this.host = host;
