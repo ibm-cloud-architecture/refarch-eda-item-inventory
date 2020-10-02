@@ -43,7 +43,7 @@ services:
     depends_on:
         - kafka
   zookeeper:
-    image: strimzi/kafka:latest-kafka-2.5.0
+    image: strimzi/kafka:latest-kafka-2.6.0
     hostname: zookeeper
     command: [
         "sh", "-c",
@@ -61,7 +61,7 @@ services:
         - ./data/zookeeper/data:/data
         - ./data/zookeeper/datalog:/datalog
   kafka:
-      image: strimzi/kafka:latest-kafka-2.5.0
+      image: strimzi/kafka:latest-kafka-2.6.0
       hostname: kafka
       command: [
       "sh", "-c",

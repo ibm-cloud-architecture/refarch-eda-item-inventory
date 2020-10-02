@@ -25,40 +25,34 @@ Even if you do not want to build it yourself the approach to support the above u
 
 ## In a hurry, just run it
 
-* Start local Kafka: `docker-compose up`.
+* Start local Kafka: `docker-compose up` to start one kafka broker, and 2 instances of the service. 
 * Be sure to have created the following topics on your Event Streams instance:
   * `items` topic with 3 partitions created
   * `inventory` topic with one partition
 
-```shell
- cloudctl es topic-create --name items --partitions 3 --replication-factor 3
- cloudctl es topic-create --name inventory --partitions 1 --replication-factor 3
- cloudctl es topics
-```
+ ```shell
+ # list existing topics
+ docker run -ti --network kafkanet strimzi/kafka:latest-kafka-2.6.0 bash -c "/opt/kafka/bin/kafka-topics.sh  --bootstrap-server kafka:9092 --list"
+ # If needed add neede topics:
+  docker run -ti --network kafkanet strimzi/kafka:latest-kafka-2.6.0 bash -c "/opt/kafka/bin/kafka-topics.sh  --bootstrap-server kafka:9092 --create --topic inventory --partitions 1 --replication-factor 1"
+  docker run -ti --network kafkanet strimzi/kafka:latest-kafka-2.6.0 bash -c "/opt/kafka/bin/kafka-topics.sh  --bootstrap-server kafka:9092 --create --topic items --partitions 3 --replication-factor 1"
+ ```
 
-* Get the scram user credentials and TLS certificate from Event Streams on OpenShift.  See the [note here](https://ibm-cloud-architecture.github.io/refarch-eda/use-cases/overview/pre-requisites#getting-tls-authentication-from-event-streams-on-openshift)
+* Verify each components runs well with `docker ps`, you should have 2 item-aggregators and 1 item producer.
 
-  Modify KAFKA_CERT_PWD in the `.env` file.
-* Update a .env file with the environment variables:
+## Demonstration script
 
-```shell
-KAFKA_BROKERS=...-kafka-bootstrap-eventstreams.....containers.appdomain.cloud:443
-KAFKA_USER=app-demo
-KAFKA_CERT_PATH=${PWD}/certs/es-cert.p12
-KAFKA_CERT_PWD=
-# only if you use a TLS user
-# USER_CERT_PATH=${PWD}/certs/user.p12
-# USER_CERT_PWD=
-```
+Once started go to one of the Item Aggregator API: [http://localhost:8081/swagger-ui/](http://localhost:8081/swagger-ui/) and the /inventory/store/{storeID} end point. Using the `Store_1` storeID you should get an empty response.
 
-Start the app in dev mode after doing the `source .env` command to set environment variables.
+* Send some simulated records: `curl -X POST http://localhost:8082/start -d '20'`
+* Verify the store inventory is updated: `curl -X GET "http://localhost:8081/inventory/store/Store_1" -H  "accept: application/json"`
+* Verify messages are sent to inventory topic by:
 
-```shell
-source .env
-./mvnw quarkus:dev
-```
-
-The application should be connected to Kafka and get visibility to the items and inventory topics. Next step is to send some items using [end to end](#end-to-end-testing) testing.
+ ```shell 
+ docker run -ti --network kafkanet strimzi/kafka:latest-kafka-2.6.0 bash
+ # then in the shell 
+ ./bin/kafka-console-consumer.sh --bootstrap-server kafka:9092 --topic inventory --from-beginning`
+ ```
 
 ## Streaming approach
 
