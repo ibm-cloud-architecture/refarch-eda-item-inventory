@@ -31,7 +31,7 @@ public class InventoryAggregate {
     public static String INVENTORY_STORE_NAME = "StoreInventoryStock";
 
     @Inject
-    @ConfigProperty(name = "mp.messaging.outgoing.inventory-channel.topic")
+    @ConfigProperty(name = "inventory.topic")
     public String inventoryStockOutputStreamName;
 
     private static JsonbSerde<Inventory> inventorySerde = new JsonbSerde<>(Inventory.class);

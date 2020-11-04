@@ -24,7 +24,7 @@ public class ItemStream {
     public static String ITEMS_STORE_NAME = "ItemSoldStore";
 
     @Inject
-    @ConfigProperty(name="mp.messaging.incoming.item-channel.topic")
+    @ConfigProperty(name="items.topic")
     public String itemSoldInputStreamName;
     
     private static JsonbSerde<Item> itemSerde = new JsonbSerde<>(Item.class);
