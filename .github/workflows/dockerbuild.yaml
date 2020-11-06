@@ -1,4 +1,4 @@
-name: Build & push images for 'eda-store-simulator'
+name: Build & push images for 'eda inventory aggregator'
 on:
   push:
     branches:
@@ -49,12 +49,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - name: Bump version and push tag
-      id: bump-version-action
-      uses: osowski/github-tag-action@master
-      env:
-        DEFAULT_BUMP: patch
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Build the app docker image
       id: build-container-image
       run: |
@@ -71,7 +65,7 @@ jobs:
         DOCKER_U: ${{ secrets.DOCKER_USERNAME }}
         DOCKER_P: ${{ secrets.DOCKER_PASSWORD }}
         DOCKER_R: ${{ secrets.DOCKER_REPOSITORY }}
-        DOCKER_I: ${{ secrets.DOCKER_IMAGE_SPRING }}
+        DOCKER_I: ${{ secrets.DOCKER_IMAGE_NAME }}
         WORKDIR: .
         DOCKERFILE: src/main/docker/Dockerfile.jvm
-        IMAGE_TAG: ${{ steps.bump-version-action.outputs.new_tag }}
+        IMAGE_TAG: 0.1.0
