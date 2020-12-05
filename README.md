@@ -220,7 +220,8 @@ docker push ibmcase/item-aggregator:0.0.2
 ```
 
 
-## Running distributed mode on your latop with docker-compose
+## Running distributed mode on your laptop with docker-compose
+
 ```shell
 # runs three insance of your applicaiton with load balancer using nginx. this will be taken care by routes, services on openshift
 docker-compose up --scale item-intentory=3
@@ -239,3 +240,12 @@ curl http://localhost:4000/inventory/store/Store-1
   "storeName": "Store-1"
 }
 ```
+
+## Git Action
+
+This repository includes a Github [workflow](https://github.com/ibm-cloud-architecture/refarch-eda-item-inventory/blob/master/.github/workflows/dockerbuild.yaml) to build the app and push a new docker image to public registry. To do that we need to define 4 secrets in the github repository:
+
+* DOCKER_IMAGE_NAME the image name to build. Here it is `item-aggregator`
+* DOCKER_USERNAME: user to access docker hub
+* DOCKER_PASSWORD: and its password.
+* DOCKER_REPOSITORY for example the organization we use is `ibmcase`
