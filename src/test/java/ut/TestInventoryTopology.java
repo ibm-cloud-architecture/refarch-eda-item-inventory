@@ -22,20 +22,19 @@ import ibm.gse.eda.inventory.infrastructure.InventoryAggregate;
 import ibm.gse.eda.inventory.infrastructure.ItemStream;
 import io.quarkus.kafka.client.serialization.JsonbSerde;
 
-public class TestInventory {
+public class TestInventoryTopology {
      
     private static TopologyTestDriver testDriver;
 
     private TestInputTopic<String, Item> inputTopic;
     private TestOutputTopic<String, Inventory> inventoryOutputTopic;
-   
-    private StoreInventoryAgent agent = new StoreInventoryAgent();
  
     private Serde<String> stringSerde = new Serdes.StringSerde();
     private JsonbSerde<Item> itemSerde = new JsonbSerde<>(Item.class);
-    
     private JsonbSerde<Inventory> inventorySerde = new JsonbSerde<>(Inventory.class);
   
+    private StoreInventoryAgent agent = new StoreInventoryAgent();
+    
     public  Properties getStreamsConfig() {
         final Properties props = new Properties();
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, "stock-aggregator");

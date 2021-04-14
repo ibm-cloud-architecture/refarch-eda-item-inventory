@@ -14,7 +14,7 @@ import ibm.gse.eda.inventory.infrastructure.InventoryAggregate;
 import ibm.gse.eda.inventory.infrastructure.ItemStream;
 
 /**
- * The agent process item from the event stream and build an inventory aggregation 
+ * The agent process item from the item stream and build an inventory aggregation 
  * per store. It accumulates sale quantity per item 
  * and stock amount per store per item
  */
