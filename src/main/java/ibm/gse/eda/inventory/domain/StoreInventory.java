@@ -3,32 +3,39 @@ package ibm.gse.eda.inventory.domain;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.quarkus.kafka.client.serialization.JsonbSerde;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
+/**
+ * Represent an item inventory for a store 
+ */
 @RegisterForReflection
-public class Inventory {
+public class StoreInventory {
+    public static JsonbSerde<StoreInventory> storeInventorySerde = new JsonbSerde<>(StoreInventory.class);
+    
     public String storeName;
+    // map <item_id,quantity>
     public HashMap<String,Long> stock = new HashMap<String,Long>();
 
-    public Inventory(){}
+    public StoreInventory(){}
 
-    public Inventory(String storeName) {
+    public StoreInventory(String storeName) {
         this.storeName = storeName;
     }
 
-    public Inventory(String storeName, String sku, int quantity) {
+    public StoreInventory(String storeName, String sku, int quantity) {
         this.storeName = storeName;
         this.updateStock(sku, quantity);
     }
 
-    public Inventory updateStockQuantity(String k, Item newValue) {
-        this.storeName = k;
-        if (newValue.type != null && Item.SALE.equals(newValue.type))
+    public StoreInventory updateStockQuantity(String key, ItemTransaction newValue) {
+        this.storeName = key;
+        if (newValue.type != null && ItemTransaction.SALE.equals(newValue.type))
             newValue.quantity=-newValue.quantity;
         return this.updateStock(newValue.sku,newValue.quantity);
     }
 
-    public Inventory updateStock(String sku, long newV) {
+    public StoreInventory updateStock(String sku, long newV) {
         if (stock.get(sku) == null) {
             stock.put(sku, Long.valueOf(newV));
         } else {

@@ -1,4 +1,4 @@
-package ibm.gse.eda.inventory.infrastructure;
+package ibm.gse.eda.inventory.infra;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -21,55 +21,48 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.Stores;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import ibm.gse.eda.inventory.domain.Inventory;
+import ibm.gse.eda.inventory.domain.StoreInventory;
 import io.quarkus.kafka.client.serialization.JsonbSerde;
 
+/**
+ * Item inventory stream represents the stream of output message 
+ * to share stock value for an item
+ */
 @ApplicationScoped
-public class InventoryAggregate {
-
-    // store to keep stock per store-id
-    public static String INVENTORY_STORE_NAME = "StoreInventoryStock";
+public class ItemInventoryStream {
 
     @Inject
     @ConfigProperty(name = "inventory.topic")
     public String inventoryStockOutputStreamName;
 
-    private static JsonbSerde<Inventory> inventorySerde = new JsonbSerde<>(Inventory.class);
-    KeyValueBytesStoreSupplier storeSupplier = Stores.persistentKeyValueStore(INVENTORY_STORE_NAME);
-
+    
     public StreamsBuilder builder;
 
-    public InventoryAggregate() {
+    public ItemInventoryStream() {
         builder = new StreamsBuilder();
     }
 
     public void joinBuilder(StreamsBuilder builder) {
         this.builder = builder;
     }
-    public KStream<String, Inventory> getInventoryStreams() {
+
+    public KStream<String, StoreInventory> buildInventoryStream() {
         if (builder == null) {
             builder = new StreamsBuilder();
         }
-        return builder.stream(inventoryStockOutputStreamName, Consumed.with(Serdes.String(), inventorySerde));
+        return builder.stream(inventoryStockOutputStreamName, Consumed.with(Serdes.String(), StoreInventory.storeInventorySerde));
     }
 
-    /**
-     * Create a key value store named INVENTORY_STORE_NAME to persist store inventory
-     * @return
-     */
-    public static Materialized<String, Inventory, KeyValueStore<Bytes, byte[]>> materializeAsInventoryStore() {
-        return Materialized.<String, Inventory, KeyValueStore<Bytes, byte[]>>as(INVENTORY_STORE_NAME)
-                .withKeySerde(Serdes.String()).withValueSerde(inventorySerde);
-    }
 
-    public void produceInventoryStockStream(KTable<String, Inventory> inventory) {
-        KStream<String, Inventory> inventories = inventory.toStream();
+    public void produceItemInventoryToInventoryOutputStream(KTable<String, StoreInventory> inventory) {
+        KStream<String, StoreInventory> inventories = inventory.toStream();
         inventories.print(Printed.toSysOut());
 
-        inventories.to(inventoryStockOutputStreamName, Produced.with(Serdes.String(), inventorySerde));
+        inventories.to(inventoryStockOutputStreamName, Produced.with(Serdes.String(), StoreInventory.storeInventorySerde));
     }
 
-    public List<KeyValue<String, Long>> getItemSold(String k, Inventory v) {
+    // ! completely wrong
+    public List<KeyValue<String, Long>> getItemSold(String storeID, StoreInventory v) {
         List<KeyValue<String, Long>> result = new LinkedList<>();
         v.stock.forEach((k2, v2) -> result.add(new KeyValue<String, Long>(k2, -v2)));
         return result;

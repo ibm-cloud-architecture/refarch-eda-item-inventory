@@ -9,7 +9,7 @@ import org.eclipse.microprofile.reactive.messaging.Outgoing;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import ibm.gse.eda.inventory.domain.Item;
+import ibm.gse.eda.inventory.domain.ItemTransaction;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
@@ -21,10 +21,10 @@ import io.smallrye.mutiny.Multi;
 public class InventoryResourceIT {
     
     @Outgoing("items")
-    public  Multi<Item> sendItemEventsToKafka() {
-        List<Item> items = new ArrayList<Item>();
-        items.add(new Item("Store-1","Item-1",Item.RESTOCK,5));
-        items.add(new Item("Store-1","Item-1",Item.SALE,2,30.0));
+    public  Multi<ItemTransaction> sendItemEventsToKafka() {
+        List<ItemTransaction> items = new ArrayList<ItemTransaction>();
+        items.add(new ItemTransaction("Store-1","Item-1",ItemTransaction.RESTOCK,5));
+        items.add(new ItemTransaction("Store-1","Item-1",ItemTransaction.SALE,2,30.0));
         return Multi.createFrom().iterable(items);
     }
     

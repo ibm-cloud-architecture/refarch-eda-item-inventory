@@ -2,10 +2,12 @@ package ibm.gse.eda.inventory.domain;
 
 import java.time.LocalDateTime;
 
+import io.quarkus.kafka.client.serialization.JsonbSerde;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 @RegisterForReflection
-public class Item {
+public class ItemTransaction {
+        public static JsonbSerde<ItemTransaction> itemTransactionSerde = new JsonbSerde<>(ItemTransaction.class);
         public static String RESTOCK = "RESTOCK";
         public static String SALE = "SALE";
         public Long id;
@@ -16,10 +18,10 @@ public class Item {
         public Double price;
         public String timestamp;
 
-        public Item() {
+        public ItemTransaction() {
         }
 
-        public Item(String store, String sku, String type, int quantity, double price) {
+        public ItemTransaction(String store, String sku, String type, int quantity, double price) {
                 this.storeName = store;
                 this.sku = sku;
                 this.type = type;
@@ -28,7 +30,7 @@ public class Item {
                 this.timestamp = LocalDateTime.now().toString();
         }
 
-        public Item(String store, String sku, String type, int quantity) {
+        public ItemTransaction(String store, String sku, String type, int quantity) {
                 this.storeName = store;
                 this.sku = sku;
                 this.type = type;

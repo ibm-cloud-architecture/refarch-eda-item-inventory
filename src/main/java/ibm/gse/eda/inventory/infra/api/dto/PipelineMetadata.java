@@ -1,4 +1,4 @@
-package ibm.gse.eda.inventory.api.dto;
+package ibm.gse.eda.inventory.infra.api.dto;
 
 import java.util.Set;
 

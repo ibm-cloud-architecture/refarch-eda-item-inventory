@@ -1,15 +1,15 @@
-package ibm.gse.eda.inventory.api.dto;
+package ibm.gse.eda.inventory.infra.api.dto;
 
 import java.util.Optional;
 import java.util.OptionalInt;
 
 import org.apache.kafka.streams.state.HostInfo;
 
-import ibm.gse.eda.inventory.domain.Inventory;
+import ibm.gse.eda.inventory.domain.StoreInventory;
 
 public class InventoryQueryResult {
     private static InventoryQueryResult NOT_FOUND = new InventoryQueryResult(null, null, null);
-    private final Inventory result;
+    private final StoreInventory result;
     private final String host;
     private final Integer port;
 
@@ -19,7 +19,7 @@ public class InventoryQueryResult {
         port=8080;
     }
 
-    public InventoryQueryResult(Inventory result, String host, Integer port) {
+    public InventoryQueryResult(StoreInventory result, String host, Integer port) {
         this.result = result;
         this.host = host;
         this.port = port;
@@ -29,7 +29,7 @@ public class InventoryQueryResult {
         return NOT_FOUND;
     }
 
-    public static InventoryQueryResult found(Inventory data) {
+    public static InventoryQueryResult found(StoreInventory data) {
         return new InventoryQueryResult(data, null, null);
     }
 
@@ -37,7 +37,7 @@ public class InventoryQueryResult {
         return new InventoryQueryResult(null, host.host(), host.port());
     }
 
-    public Optional<Inventory> getResult() {
+    public Optional<StoreInventory> getResult() {
         return Optional.ofNullable(result);
     }
 

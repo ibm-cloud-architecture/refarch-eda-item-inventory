@@ -1,12 +1,10 @@
-package ibm.gse.eda.inventory.api;
+package ibm.gse.eda.inventory.infra.api;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.Serdes;
@@ -19,9 +17,9 @@ import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
-import ibm.gse.eda.inventory.api.dto.ItemCountQueryResult;
-import ibm.gse.eda.inventory.api.dto.PipelineMetadata;
-import ibm.gse.eda.inventory.infrastructure.ItemStream;
+import ibm.gse.eda.inventory.domain.StoreInventoryAgent;
+import ibm.gse.eda.inventory.infra.api.dto.ItemCountQueryResult;
+import ibm.gse.eda.inventory.infra.api.dto.PipelineMetadata;
 
 @ApplicationScoped
 public class ItemCountQueries {
@@ -35,7 +33,7 @@ public class ItemCountQueries {
     KafkaStreams streams;
 
     public List<PipelineMetadata> getItemCountStoreMetadata() {
-        return streams.allMetadataForStore(ItemStream.ITEMS_STORE_NAME)
+        return streams.allMetadataForStore(StoreInventoryAgent.ITEMS_STOCK_KAFKA_STORE_NAME)
                 .stream()
                 .map(m -> new PipelineMetadata(
                         m.hostInfo().host() + ":" + m.hostInfo().port(),
@@ -51,7 +49,7 @@ public class ItemCountQueries {
         LOG.warnv("Search metadata for key {0}", itemID);
         try {
             metadata = streams.queryMetadataForKey(
-                ItemStream.ITEMS_STORE_NAME,
+                StoreInventoryAgent.ITEMS_STOCK_KAFKA_STORE_NAME,
                 itemID,
                 Serdes.String().serializer());
         } catch (Exception e) {
@@ -79,7 +77,7 @@ public class ItemCountQueries {
     private ReadOnlyKeyValueStore<String, Long> getItemStockStore() {
         while (true) {
             try {
-                StoreQueryParameters<ReadOnlyKeyValueStore<String,Long>> parameters = StoreQueryParameters.fromNameAndType(ItemStream.ITEMS_STORE_NAME,QueryableStoreTypes.keyValueStore());
+                StoreQueryParameters<ReadOnlyKeyValueStore<String,Long>> parameters = StoreQueryParameters.fromNameAndType(StoreInventoryAgent.ITEMS_STOCK_KAFKA_STORE_NAME,QueryableStoreTypes.keyValueStore());
                 return streams.store(parameters);
              } catch (InvalidStateStoreException e) {
                 // ignore, store not ready yet

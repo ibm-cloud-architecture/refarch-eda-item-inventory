@@ -1,4 +1,4 @@
-package ibm.gse.eda.inventory.api;
+package ibm.gse.eda.inventory.infra.api;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,10 +17,10 @@ import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
-import ibm.gse.eda.inventory.api.dto.InventoryQueryResult;
-import ibm.gse.eda.inventory.api.dto.PipelineMetadata;
-import ibm.gse.eda.inventory.domain.Inventory;
-import ibm.gse.eda.inventory.infrastructure.InventoryAggregate;
+import ibm.gse.eda.inventory.domain.StoreInventory;
+import ibm.gse.eda.inventory.domain.StoreInventoryAgent;
+import ibm.gse.eda.inventory.infra.api.dto.InventoryQueryResult;
+import ibm.gse.eda.inventory.infra.api.dto.PipelineMetadata;
 
 @ApplicationScoped
 public class StoreInventoryQueries {
@@ -34,7 +34,7 @@ public class StoreInventoryQueries {
     KafkaStreams streams;
 
     public List<PipelineMetadata> getStoreInventoryStoreMetadata() {
-        return streams.allMetadataForStore(InventoryAggregate.INVENTORY_STORE_NAME)
+        return streams.allMetadataForStore(StoreInventoryAgent.STORE_INVENTORY_KAFKA_STORE_NAME)
                 .stream()
                 .map(m -> new PipelineMetadata(
                         m.hostInfo().host() + ":" + m.hostInfo().port(),
@@ -50,7 +50,7 @@ public class StoreInventoryQueries {
         LOG.warnv("Search metadata for key {0}", storeID);
         try {
             metadata = streams.queryMetadataForKey(
-                InventoryAggregate.INVENTORY_STORE_NAME,
+                StoreInventoryAgent.STORE_INVENTORY_KAFKA_STORE_NAME,
                 storeID,
                 Serdes.String().serializer());
         } catch (Exception e) {
@@ -62,7 +62,7 @@ public class StoreInventoryQueries {
             return InventoryQueryResult.notFound();
         } else if (metadata.getActiveHost().host().equals(host)) {
             LOG.infov("Found data for key {0} locally", storeID);
-            Inventory result = getInventoryStockStore().get(storeID);
+            StoreInventory result = getInventoryStockStore().get(storeID);
 
             if (result != null) {
                 return InventoryQueryResult.found(result);
@@ -75,10 +75,10 @@ public class StoreInventoryQueries {
         }
     }
 
-    private ReadOnlyKeyValueStore<String, Inventory> getInventoryStockStore() {
+    private ReadOnlyKeyValueStore<String, StoreInventory> getInventoryStockStore() {
         while (true) {
             try {
-                StoreQueryParameters<ReadOnlyKeyValueStore<String,Inventory>> parameters = StoreQueryParameters.fromNameAndType(InventoryAggregate.INVENTORY_STORE_NAME,QueryableStoreTypes.keyValueStore());
+                StoreQueryParameters<ReadOnlyKeyValueStore<String,StoreInventory>> parameters = StoreQueryParameters.fromNameAndType(StoreInventoryAgent.STORE_INVENTORY_KAFKA_STORE_NAME,QueryableStoreTypes.keyValueStore());
                 return streams.store(parameters);
              } catch (InvalidStateStoreException e) {
                 // ignore, store not ready yet

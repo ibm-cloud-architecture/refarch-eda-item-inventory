@@ -1,4 +1,4 @@
-package ibm.gse.eda.inventory.api;
+package ibm.gse.eda.inventory.infra.api;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -10,9 +10,9 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 
-import ibm.gse.eda.inventory.api.dto.InventoryQueryResult;
-import ibm.gse.eda.inventory.api.dto.ItemCountQueryResult;
-import ibm.gse.eda.inventory.api.dto.PipelineMetadata;
+import ibm.gse.eda.inventory.infra.api.dto.InventoryQueryResult;
+import ibm.gse.eda.inventory.infra.api.dto.ItemCountQueryResult;
+import ibm.gse.eda.inventory.infra.api.dto.PipelineMetadata;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: item-aggregator-cm
+data:
+  APP_VERSION: 0.0.4
+  KAFKA_BOOTSTRAP_SERVERS: my-kafka-kafka-bootstrap.mysandbox.svc:9093
+  INVENTORY_TOPIC: jb-inventory
+  ITEM_TOPIC: jb-items
+  QUARKUS_KAFKA_STREAMS_TOPICS: jb-items,jb-inventory
+  QUARKUS_KAFKA_HEALTH_ENABLED: "false"
+  QUARKUS_KAFKA_STREAMS_HEALTH_ENABLED: "false"
+  QUARKUS_KAFKA_CONNECTOR_HEALTH_ENABLED: "false"
+  
