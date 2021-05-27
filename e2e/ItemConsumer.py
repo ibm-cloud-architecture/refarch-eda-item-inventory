@@ -13,7 +13,7 @@ if __name__ == '__main__':
                 kafka_pwd = config.KAFKA_PASSWORD, 
                 kafka_cacert = config.KAFKA_CERT_PATH, 
                 kafka_sasl_mechanism=config.KAFKA_SASL_MECHANISM,
-                topic_name = "items",
+                topic_name = "item.inventory",
                 autocommit = False,
                 fromWhere = 'earliest')
         consumer.prepare(CONSUMERGROUP)

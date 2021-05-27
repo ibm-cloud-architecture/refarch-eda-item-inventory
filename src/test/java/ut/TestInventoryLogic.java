@@ -3,7 +3,7 @@ package ut;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import ibm.gse.eda.inventory.domain.StoreInventory;
+import ibm.gse.eda.inventory.domain.ItemInventory;
 import ibm.gse.eda.inventory.domain.ItemTransaction;
 
 public class TestInventoryLogic {
@@ -14,9 +14,9 @@ public class TestInventoryLogic {
         i1.sku = "Item_1";
         i1.type = "SALE";
         i1.quantity = 10;
-        StoreInventory inventory = new StoreInventory();
-        StoreInventory out = inventory.updateStockQuantity("Store_1",i1);
-        Assertions.assertEquals(-10,out.stock.get(i1.sku));
+        ItemInventory inventory = new ItemInventory();
+        ItemInventory out = inventory.updateStockQuantityFromTransaction(i1.sku,i1);
+        Assertions.assertEquals(-10,out.currentStock);
     }
 
     @Test
@@ -25,9 +25,9 @@ public class TestInventoryLogic {
         i1.sku = "Item_1";
         i1.type = "RESTOCK";
         i1.quantity = 10;
-        StoreInventory inventory = new StoreInventory();
-        StoreInventory out = inventory.updateStockQuantity("Store_1",i1);
-        Assertions.assertEquals(10,out.stock.get(i1.sku));
+        ItemInventory inventory = new ItemInventory();
+        ItemInventory out = inventory.updateStockQuantityFromTransaction(i1.sku,i1);
+        Assertions.assertEquals(10,out.currentStock);
     }
 
     @Test
@@ -36,10 +36,10 @@ public class TestInventoryLogic {
         i1.sku = "Item_1";
         i1.type = "RESTOCK";
         i1.quantity = 10;
-        StoreInventory inventory = new StoreInventory();
-        inventory.updateStockQuantity("Store_1",i1);
+        ItemInventory inventory = new ItemInventory();
+        inventory.updateStockQuantityFromTransaction("Store_1",i1);
         i1.type = "SALE";
-        StoreInventory out = inventory.updateStockQuantity("Store_1",i1);
-        Assertions.assertEquals(0,out.stock.get(i1.sku));
+        ItemInventory out = inventory.updateStockQuantityFromTransaction(i1.sku,i1);
+        Assertions.assertEquals(0,out.currentStock);
     }
 }

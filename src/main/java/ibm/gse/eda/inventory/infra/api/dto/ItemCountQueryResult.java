@@ -5,19 +5,21 @@ import java.util.OptionalInt;
 
 import org.apache.kafka.streams.state.HostInfo;
 
+import ibm.gse.eda.inventory.domain.ItemInventory;
+
 public class ItemCountQueryResult {
     private static ItemCountQueryResult NOT_FOUND = new ItemCountQueryResult(null, null, null);
-    private final Long result;
+    private final ItemInventory result;
     private final String host;
     private final Integer port;
 
     public ItemCountQueryResult(){
-        result = 0L;
+        result = new ItemInventory();
         host="localhost";
         port=8080;
     }
 
-    public ItemCountQueryResult(Long result, String host, Integer port) {
+    public ItemCountQueryResult(ItemInventory result, String host, Integer port) {
         this.result = result;
         this.host = host;
         this.port = port;
@@ -27,7 +29,7 @@ public class ItemCountQueryResult {
         return NOT_FOUND;
     }
 
-    public static ItemCountQueryResult found(Long data) {
+    public static ItemCountQueryResult found(ItemInventory data) {
         return new ItemCountQueryResult(data, null, null);
     }
 
@@ -35,7 +37,7 @@ public class ItemCountQueryResult {
         return new ItemCountQueryResult(null, host.host(), host.port());
     }
 
-    public Optional<Long> getResult() {
+    public Optional<ItemInventory> getResult() {
         return Optional.ofNullable(result);
     }
 

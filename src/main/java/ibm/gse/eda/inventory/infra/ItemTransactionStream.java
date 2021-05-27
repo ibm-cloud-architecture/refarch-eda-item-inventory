@@ -1,35 +1,33 @@
 package ibm.gse.eda.inventory.infra;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import java.util.Optional;
 
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.KStream;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.config.ConfigProvider;
 
 import ibm.gse.eda.inventory.domain.ItemTransaction;
 
 /**
  * Represents the input stream of the items sold/restock in store.
- * The name of the items topic is configured externally and injected
+ * The name of the items topic is configured externally
  * The Event is in JSON format
  */
-@ApplicationScoped
-public class ItemStream {
+public class ItemTransactionStream {
 
-    @Inject
-    @ConfigProperty(name="items.topic")
-    public String itemSoldInputStreamName;
-    
-    
+    public String itemSoldInputStreamName = "items";
+        
     public StreamsBuilder builder;
       
-    public ItemStream(){
+    public ItemTransactionStream(){
         builder = new StreamsBuilder();
+        Optional<String> v =ConfigProvider.getConfig().getOptionalValue("app.items.topic", String.class);
+        if (v.isPresent()) {
+            this.itemSoldInputStreamName = v.get();
+        }
     }
 
     public KStream<String,ItemTransaction> getItemStreams(){
@@ -40,9 +38,4 @@ public class ItemStream {
 	public Topology run() {
 		return builder.build();
     }
-    
-	public static Grouped<String, ItemTransaction> buildGroupDefinitionType() {
-		return Grouped.with(Serdes.String(),ItemTransaction.itemTransactionSerde);
-    }
-    
 }

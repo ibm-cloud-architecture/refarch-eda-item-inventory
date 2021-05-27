@@ -1,19 +1,40 @@
 version: '3.7'
 services:
+  iteminventory1:
+    image: quay.io/ibmcase/item-aggregator
+    ports:
+      - 8080:8080
+    environment: 
+        KAFKA_BROKERS: kafka:29092
+        SECURE_PROTOCOL: PLAINTEXT
+        QUARKUS_PROFILE: dev
+        KAFKA_CERT_PWD: toto
+        USER_CERT_PWD: toto
+    depends_on:
+      - kafka
+  iteminventory2:
+    image: quay.io/ibmcase/item-aggregator
+    ports:
+      - 8081:8080
+    environment: 
+        KAFKA_BROKERS: kafka:29092
+        SECURE_PROTOCOL: PLAINTEXT
+        QUARKUS_PROFILE: dev
+        KAFKA_CERT_PWD: toto
+        USER_CERT_PWD: toto
+    depends_on:
+      - kafka
   storesimulator:
     hostname: storesimulator
-    container_name: storesimulator
     image: quay.io/ibmcase/eda-store-simulator
     ports:
       - 8082:8080
     environment: 
         KAFKA_BOOTSTRAP_SERVERS: kafka:29092
         APP_TARGET_MESSAGING: Kafka
-        SECURE_PROTOCOL: PLAINTEXT
-        KAFKA_CERT_PWD: toto
-        USER_CERT_PWD: toto
     depends_on:
         - kafka
+  
   zookeeper:
     image: quay.io/strimzi/kafka:latest-kafka-2.7.0
     container_name: zookeeper
@@ -25,6 +46,7 @@ services:
       - "2181:2181"
     environment:
       LOG_DIR: /tmp/logs
+
   kafka:
     image: quay.io/strimzi/kafka:latest-kafka-2.7.0
     container_name: kafka

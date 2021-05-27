@@ -4,8 +4,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.testcontainers.containers.KafkaContainer;
-
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 
 /**
@@ -16,7 +14,7 @@ import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
  */
 public class KafkaResource implements QuarkusTestResourceLifecycleManager {
 
-    private final KafkaContainer kafka = new KafkaContainer();
+    private final StrimziContainer kafka = new StrimziContainer();
 
     @Override
     public Map<String, String> start() {

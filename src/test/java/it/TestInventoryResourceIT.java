@@ -10,15 +10,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import ibm.gse.eda.inventory.domain.ItemTransaction;
-import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.smallrye.mutiny.Multi;
 
 @QuarkusTest
-@QuarkusTestResource(KafkaResource.class)
-public class InventoryResourceIT {
+//@QuarkusTestResource(KafkaResource.class)
+public class TestInventoryResourceIT extends BasicIT {
     
     @Outgoing("items")
     public  Multi<ItemTransaction> sendItemEventsToKafka() {
@@ -36,9 +35,10 @@ public class InventoryResourceIT {
     
     @Test
     public void shouldGetOneInventory(){
+        System.out.println(System.getProperty("KAFKA_BOOTSTRAP_SERVERS"));
         Response r = given().headers("Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
         .when()
-        .get("/inventory/Store-1/Item-1")
+        .get("/api/v1/items/Item-1")
         .then()
         .statusCode(200)
         .contentType(ContentType.JSON)
