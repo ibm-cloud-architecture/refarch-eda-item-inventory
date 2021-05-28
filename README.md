@@ -11,6 +11,8 @@ Here is a simple diagram to illustrate the components used:
 
 The goal of this note is to present how to run the solution locally using Strimzi Kafka image and instructions to build it from the beginning.
 
+Updated 05/27/2021
+
 ## Pre-requisites
 
 For development purpose the following pre-requisites need to be installed on your working computer:
@@ -85,19 +87,26 @@ the item store.**
 
 ## Developing the application from A to Z
 
-See [this dedicated note for that](./docs/dev-app.md).
+To develop the same type of application see [this specific note](./docs/dev-app.md). It also includes some testing tools
+for integration tests.
 
 
+## Deploy on OpenShift cluster with Kafka Strimzi
 
+* Be sure to have installed Strimzi operator (tested on 0.23) on OpenShift cluster. 
+* Get th gitops project related to this current project:
 
-## Deploy on OpenShift cluster with Event Streams within Cloud Pak for Integration
-
-* Select one of the existing Kafka users with TLS authentication or create a new one from the Event Streams console, with the produce, consume messages and create topic and schemas authorizations, on all topics or topic with a specific prefix, on all consumer groups or again with a specific prefix, all transaction IDs.
+```sh
+git clone https://github.com/ibm-cloud-architecture/eda-lab-inventory/
+```
+* Select one of the existing Kafka users with TLS authentication or create a new one from the
+ Event Streams console, with the produce, consume messages and create topic and schemas authorizations, 
+ on all topics or topic with a specific prefix, on all consumer groups or again with a specific prefix, 
+ all transaction IDs.
 
 ```shell
-# if not logged yes to your openshift cluster where the docker private registry resides do:
+# if not logged yet to your openshift cluster where the docker private registry resides do:
 oc login --token=... --server=https://c...
-oc get kafkausers -n eventstreams
 ```
 
 We use a user with TLS authentication named: `tls-user`

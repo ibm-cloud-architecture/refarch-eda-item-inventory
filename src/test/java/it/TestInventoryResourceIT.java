@@ -1,23 +1,23 @@
 package it;
 
-import static io.restassured.RestAssured.given;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import ibm.gse.eda.inventory.domain.ItemTransaction;
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.smallrye.mutiny.Multi;
+import static io.restassured.RestAssured.given;
 
 @QuarkusTest
-//@QuarkusTestResource(KafkaResource.class)
-public class TestInventoryResourceIT extends BasicIT {
+@QuarkusTestResource(KafkaTestResource.class)
+public class TestInventoryResourceIT {
     
     @Outgoing("items")
     public  Multi<ItemTransaction> sendItemEventsToKafka() {
@@ -27,15 +27,13 @@ public class TestInventoryResourceIT extends BasicIT {
         return Multi.createFrom().iterable(items);
     }
     
-    @BeforeEach
-    public void setup(){
-        // send items to kafka
-        sendItemEventsToKafka();
-    }
     
     @Test
-    public void shouldGetOneInventory(){
+    public void shouldGetOneInventory() throws InterruptedException{
         System.out.println(System.getProperty("KAFKA_BOOTSTRAP_SERVERS"));
+        Multi<ItemTransaction> txs= sendItemEventsToKafka();
+        
+        Thread.sleep(5000);
         Response r = given().headers("Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
         .when()
         .get("/api/v1/items/Item-1")
@@ -45,6 +43,6 @@ public class TestInventoryResourceIT extends BasicIT {
         .extract()
         .response();
 
-        System.out.println(r.jsonPath());
+        System.out.println(r.jsonPath().prettyPrint());
     }
 }
