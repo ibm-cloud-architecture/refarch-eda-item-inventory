@@ -1,17 +1,17 @@
 # Item sold aggregator component
 
 This project illustrates combining Kafka Streams with reactive programming, and reactive messaging with Quarkus.
-The goal of the Kafka streams implementation is to build a real time inventory view from items sold in different stores. The aggregates are kept in state store and expose via interactive queries.
+The goal of the Kafka streams implementation is to build a real time inventory view from items sold in different stores. The aggregates are kept in state store and exposed via interactive queries.
 
 The project is used as a Kafka Streams lab [documented here](https://ibm-cloud-architecture.github.io/refarch-eda/use-cases/kafka-streams/lab-3/) with instructions to deploy and run it on OpenShift.
 
 Here is a simple diagram to illustrate the components used:
 
- ![1](https://github.com/ibm-cloud-architecture/refarch-eda/blob/master/docs/src/pages/use-cases/kafka-streams/lab-3/images/item-aggregator-ctx.png)
+ ![1](https://github.com/ibm-cloud-architecture/refarch-eda/blob/master/docs/src/pages/use-cases/kafka-streams/lab-3/images/inventory-components.png)
 
-The goal of this note is to present how to run the solution locally using Strimzi Kafka image and instructions to build it from the beginning.
+The goal of this note is to present how to run this item inventory aggregartor locally using Strimzi Kafka image and instructions to build it.
 
-Updated 05/27/2021
+Updated 06/09/2021
 
 ## Pre-requisites
 
@@ -93,44 +93,8 @@ for integration tests.
 
 ## Deploy on OpenShift cluster with Kafka Strimzi
 
-* Be sure to have installed Strimzi operator (tested on 0.23) on OpenShift cluster. 
-* Get th gitops project related to this current project:
-
-```sh
-git clone https://github.com/ibm-cloud-architecture/eda-lab-inventory/
-```
-* Select one of the existing Kafka users with TLS authentication or create a new one from the
- Event Streams console, with the produce, consume messages and create topic and schemas authorizations, 
- on all topics or topic with a specific prefix, on all consumer groups or again with a specific prefix, 
- all transaction IDs.
-
-```shell
-# if not logged yet to your openshift cluster where the docker private registry resides do:
-oc login --token=... --server=https://c...
-```
-
-We use a user with TLS authentication named: `tls-user`
-
-* Copy user's secret to the current project where the application will run
-
-```shell
-oc get secret  tls-user -n eventstreams --export -o yaml | oc apply -f -
-```
-
-* Copy the server side TLS certificate to your project:
-
-```shell
-oc get secret  sandbox-cluster-ca-cert -n eventstreams --export -o yaml | oc apply -f -
-```
+The instructions to deploy the complete real time inventorty solution is desceribed in [this Kafka Stream lab](https://ibm-cloud-architecture.github.io/refarch-eda/use-cases/kafka-streams/lab-3/). It uses gitops and a unique script
+to deploy Kafka, configure topic, users and deploy the components.
 
 
-* Build and push the image to public registry
-
-```shell
-./mvnw package
-docker build -f src/main/docker/Dockerfile.jvm -t ibmcase/item-aggregator:0.0.2 .
-docker push ibmcase/item-aggregator:0.0.2
-# build with s2i and push the image to private registry
-./mvnw clean package -DQuarkus.kubernetes.deploy=true
-```
 

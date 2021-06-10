@@ -9,7 +9,6 @@ import org.eclipse.microprofile.openapi.annotations.info.Info;
 import org.eclipse.microprofile.openapi.annotations.info.License;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-import ibm.gse.eda.inventory.domain.ItemProcessingAgent;
 import io.quarkus.runtime.StartupEvent;
 
 @OpenAPIDefinition(
