@@ -1,0 +1,49 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: build-quarkus2-app
+spec:
+  params:
+    - name: contextDir
+      description: the context dir within source
+      default: .
+    - name: mavenMirrorUrl
+      description: the maven mirrror url
+      default: https://repo.maven.apache.org/maven2/
+    - name: destinationImage
+      description: the fully qualified image name
+      default: "$(outputs.resources.builtImage.url)"
+    - name: dockerFile
+      description: the docker file to used for building the application
+      default: Dockerfile
+    - name: tlsVerify
+      description: tls verify
+      type: string
+      default: "false"
+    - name: repo-url
+      type: string
+      description: The git repository URL to clone from.
+    - name: revision
+      type: string
+      description: The git tag to clone.
+  resources:
+    - name: appSource
+      type: git
+    - name: appImage
+      type: image
+  tasks:
+    - name: build-app
+      taskRef:
+        name: build-quarkus-image-from-git
+      params:
+        - name: dockerFile
+          value: "src/main/Docker/Dockerfile.jvm"
+      resources:
+        inputs:
+          - name: source
+            resource: appSource
+        outputs:
+          - name: builtImage
+            resource: appImage
+     
+       

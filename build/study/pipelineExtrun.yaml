@@ -1,0 +1,16 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: build-quarkus-app-result-
+spec:
+  pipelineRef:
+    name: build-quarkus2-app
+  resources:
+    inputs:
+      - name: appSource
+        resource: item-inventory-source
+  params:
+  - name: repo-url
+    value: https://github.com/jbcodeforce/refarch-eda-item-inventory
+  - name: revision
+    value: master

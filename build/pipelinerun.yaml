@@ -1,0 +1,22 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: build-quarkus-app-result-
+spec:
+  pipelineRef:
+    name: build-quarkus-app
+  workspaces:
+  - name: build-ws
+    persistentvolumeclaim:
+      claimName: m2-cache
+  - name: maven-settings
+    emptyDir: {}
+  params:
+  - name: repo-url
+    value: https://github.com/jbcodeforce/refarch-eda-item-inventory
+  - name: revision
+    value: master
+  - name: DOCKERFILE
+    value: src/main/docker/Dockerfile.jvm
+  - name: IMAGE_NAME
+    value: image-registry.openshift-image-registry.svc:5000/ads-pipelines/item-aggregator

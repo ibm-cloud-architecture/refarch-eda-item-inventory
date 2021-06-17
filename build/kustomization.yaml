@@ -1,0 +1,4 @@
+resources:
+  # - roles/role-binding.yaml
+  - resources.yaml
+  - pipeline.yaml

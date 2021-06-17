@@ -96,5 +96,35 @@ for integration tests.
 The instructions to deploy the complete real time inventorty solution is desceribed in [this Kafka Stream lab](https://ibm-cloud-architecture.github.io/refarch-eda/use-cases/kafka-streams/lab-3/). It uses gitops and a unique script
 to deploy Kafka, configure topic, users and deploy the components.
 
+## Continuous integration with OpenShift Pipelines
+
+* Create a `rt-inventory-gitops` project to execute pipeline
+* Be sure the OpenShift pipelines operator is deployed if not do:
+
+  ```sh
+  oc apply -f https://raw.githubusercontent.com/ibm-cloud-architecture/eda-lab-inventory/master/environments/openshift-pipelines/operator.yaml
+  ```
+* Install the needed tasks to build app (some are provided as clustertask, some need updates): 
+
+  ```sh
+  oc apply -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/maven/0.2/maven.yaml
+
+  ```
+
+* Defines resources and pipeline:
+
+ ```sh
+ oc apply -k build/
+ ```
+
+* Execute the pipeline:
+
+  ```sh
+  oc create -f build/pipelinerun.yaml
+  ```
+
+  you should get this result:
+  
+  ![](./docs/quarkus-pipeline.png)
 
 
