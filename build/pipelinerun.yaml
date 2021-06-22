@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  generateName: build-quarkus-app-result-
+  generateName: build-item-inventory-result-
 spec:
   pipelineRef:
     name: build-quarkus-app
@@ -19,4 +19,4 @@ spec:
   - name: DOCKERFILE
     value: src/main/docker/Dockerfile.jvm
   - name: IMAGE_NAME
-    value: image-registry.openshift-image-registry.svc:5000/ads-pipelines/item-aggregator
+    value: image-registry.openshift-image-registry.svc:5000/rt-inventory-pipe/item-aggregator
