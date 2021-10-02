@@ -19,4 +19,4 @@ spec:
   - name: DOCKERFILE
     value: src/main/docker/Dockerfile.jvm
   - name: IMAGE_NAME
-    value: image-registry.openshift-image-registry.svc:5000/rt-inventory-pipe/item-aggregator
+    value: quay.io/boyerje/item-aggregator

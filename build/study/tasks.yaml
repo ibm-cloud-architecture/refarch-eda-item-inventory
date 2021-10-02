@@ -1,8 +1,8 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: build-quarkus-image-from-git
-  description: Build quarkus app with maven aand build docker image
+  name: build2-quarkus-image-from-git
+  description: Build quarkus app with maven and build docker image
 spec:
   params:
     - name: contextDir

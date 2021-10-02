@@ -18,7 +18,7 @@ spec:
   type: image
   params:
     - name: url
-      value: quay.io/ibmcase/item-aggregator:native
+      value: quay.io/boyerje/item-aggregator:native
 ---
 apiVersion: tekton.dev/v1alpha1
 kind: PipelineResource
@@ -28,7 +28,7 @@ spec:
   type: image
   params:
     - name: url
-      value: quay.io/ibmcase/item-aggregator
+      value: quay.io/boyerje/item-aggregator
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1

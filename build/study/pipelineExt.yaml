@@ -8,7 +8,7 @@ spec:
       description: the context dir within source
       default: .
     - name: mavenMirrorUrl
-      description: the maven mirrror url
+      description: the maven mirror url
       default: https://repo.maven.apache.org/maven2/
     - name: destinationImage
       description: the fully qualified image name

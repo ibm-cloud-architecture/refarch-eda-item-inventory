@@ -98,7 +98,7 @@ to deploy Kafka, configure topic, users and deploy the components.
 
 ## Continuous integration with OpenShift Pipelines
 
-* Create a `rt-inventory-gitops` project to execute pipeline
+* Create a `rt-inventory-gitops` OpenShift project to execute pipeline
 * Be sure the OpenShift pipelines operator is deployed if not do:
 
   ```sh
@@ -114,7 +114,7 @@ to deploy Kafka, configure topic, users and deploy the components.
 * Defines resources and pipeline:
 
  ```sh
- oc apply -k build/
+ oc apply -k build/resource.yaml
  ```
 
 * Execute the pipeline:
