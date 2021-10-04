@@ -1,0 +1,30 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: build-item-inventory-result-
+spec:
+  pipelineRef:
+    name: build-quarkus-app
+  serviceAccountName: pipeline
+  workspaces:
+  - name: shared-workspace
+    persistentvolumeclaim:
+      claimName: m2-cache
+  - name: maven-settings
+    emptyDir: {}
+  params:
+  - name: repo-url
+    value: https://github.com/ibm-cloud-architecture/refarch-eda-item-inventory
+  - name: revision
+    value: main
+  - name: DOCKERFILE
+    value: src/main/docker/Dockerfile.jvm
+  - name: image-server
+    value: image-registry.openshift-image-registry.svc.cluster.local:5000
+  - name: image-namespace
+    value: rt-inventory-cicd
+  - name: image-repository
+    value: eda-item-inventory
+  - name: image-tag
+    value: latest
+    
