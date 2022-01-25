@@ -99,11 +99,11 @@ spec:
         volumeMounts:
         - mountPath: /deployments/certs/server
           name: kafka-cert
-          readOnly: false
+          readOnly: true
           subPath: ""
         - mountPath: /deployments/certs/user
           name: user-cert
-          readOnly: false
+          readOnly: true
           subPath: ""
       serviceAccount: inventory-solution-sa
       volumes:

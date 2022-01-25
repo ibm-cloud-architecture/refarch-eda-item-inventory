@@ -11,6 +11,11 @@ Here is a simple diagram to illustrate the components used:
 
 The goal of this note is to present how to run this item inventory aggregartor locally using Strimzi Kafka image and instructions to build it.
 
+Updated 01/25/2021
+
+* move to quarkus 2.6.3
+> quarkus dev   does not work.
+
 Updated 06/09/2021
 
 ## Pre-requisites
