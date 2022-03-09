@@ -1,5 +1,7 @@
 package ibm.gse.eda.inventory.infra.api;
 
+import java.util.logging.Logger;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -19,6 +21,7 @@ import io.smallrye.mutiny.Uni;
 @ApplicationScoped
 @Path("/api/v1/items")
 public class InventoryResource {
+    private static final Logger LOG = Logger.getLogger(InventoryResource.class.getName()); 
     private final Client client = ClientBuilder.newBuilder().build();
 
     @Inject
@@ -30,10 +33,10 @@ public class InventoryResource {
     public Uni<ItemCountQueryResult> getItemStock(@PathParam("itemID") String itemID){
         ItemCountQueryResult result = itemQueries.getItemGlobalStock(itemID);
         if (result.getResult().isPresent()) {
-            System.out.println(itemID + " has " + result.getResult().get());
+            LOG.info(itemID + " has " + result.getResult().get());
             return Uni.createFrom().item(result);
         } else if (result.getHost().isPresent()) {
-            System.out.println("data is remote on " + result.getHost());
+            LOG.info("data is remote on " + result.getHost());
             // this is a questionable implementation. here for demo purpose.
             return queryRemoteItemCount(result.getHost().get(), result.getPort().getAsInt(), itemID);
         } else {
@@ -50,7 +53,7 @@ public class InventoryResource {
 
     private Uni<ItemCountQueryResult> queryRemoteItemCount(final String host, final int port, String itemID) {
         String url = String.format("http://%s:%d/api/v1/items/%s", host, port, itemID);
-        System.out.println("Data found on " + url);
+        LOG.info("Data found on " + url);
         // System.out.println(url);
         ItemCountQueryResult rep = client.target(url)
                 .request(MediaType.APPLICATION_JSON)

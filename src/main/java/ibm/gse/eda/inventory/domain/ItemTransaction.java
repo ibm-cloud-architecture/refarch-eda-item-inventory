@@ -3,8 +3,9 @@ package ibm.gse.eda.inventory.domain;
 import java.time.LocalDateTime;
 
 import io.quarkus.kafka.client.serialization.JsonbSerde;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 
-//@RegisterForReflection
+@RegisterForReflection
 public class ItemTransaction {
         public static JsonbSerde<ItemTransaction> itemTransactionSerde = new JsonbSerde<>(ItemTransaction.class);
         public static String RESTOCK = "RESTOCK";

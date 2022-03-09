@@ -1,11 +1,12 @@
 package ibm.gse.eda.inventory.domain;
 
 import io.quarkus.kafka.client.serialization.JsonbSerde;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 
 /**
  * Represents the item , so it is used to accumulate the stock for a given item_ID
  */
-//@RegisterForReflection
+@RegisterForReflection
 public class ItemInventory {
 
     public static JsonbSerde<ItemInventory> itemInventorySerde = new JsonbSerde<>(ItemInventory.class);

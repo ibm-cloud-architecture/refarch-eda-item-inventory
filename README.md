@@ -59,13 +59,26 @@ items
 
 ```sh
 CONTAINER ID   IMAGE                                      PORTS                     NAMES
-f31e4364dec9   quay.io/ibmcase/eda-store-simulator        0.0.0.0:8082->8080/tcp    storesimulator
 2c2959bbda15   obsidiandynamics/kafdrop                   0.0.0.0:9000->9000/tcp    kafdrop
-3e569f205f6f   quay.io/strimzi/kafka:latest-kafka-2.7.0   0.0.0.0:29092->9092/tcp   kafka
-0cf09684b675   quay.io/strimzi/kafka:latest-kafka-2.7.0   0.0.0.0:2181->2181/tcp    zookeeper
+3e569f205f6f   cp.icr.io/cp/ibm-eventstreams-kafka:10.5.0 0.0.0.0:29092->9092/tcp   kafka
+0cf09684b675   cp.icr.io/cp/ibm-eventstreams-kafka:10.5.0 0.0.0.0:2181->2181/tcp    zookeeper
+d4f74a23cf6c   quay.io/ibmcase/eda-store-simulator:0.0.10 0.0.0.0:8081->8080/tcp    simulator
 ```
 
-* Start the app in dev mode: `./mvnw quarkus:dev`
+* Start the app in dev mode: `quarkus dev`
+* do a POST on the simulator to generate 9 records
+
+```sh
+curl -X POST   -H 'accept: application/json' -H 'Content-Type: application/json' http://localhost:8081/api/stores/v1/startControlled -d '{ "records": 1, "backend": "KAFKA"}'  
+```
+
+The trace inside the item inventory code should list
+
+```sh
+[KTABLE-TOSTREAM-0000000006]: Item_2, { itemID: Item_2 -> 0
+[KTABLE-TOSTREAM-0000000006]: Item_3, { itemID: Item_3 -> 10
+[KTABLE-TOSTREAM-0000000006]: Item_1, { itemID: Item_1 -> 50
+```
 
 Then [see the demonstration](#demonstration-script) script section below to test the application.
 

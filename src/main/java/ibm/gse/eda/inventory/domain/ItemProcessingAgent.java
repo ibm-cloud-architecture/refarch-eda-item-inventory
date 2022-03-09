@@ -1,9 +1,10 @@
 package ibm.gse.eda.inventory.domain;
 
 import java.util.Optional;
+import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
+import javax.inject.Singleton;
 
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
@@ -17,6 +18,7 @@ import org.apache.kafka.streams.kstream.Printed;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.eclipse.microprofile.config.ConfigProvider;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import ibm.gse.eda.inventory.infra.ItemTransactionStream;
 
@@ -24,34 +26,37 @@ import ibm.gse.eda.inventory.infra.ItemTransactionStream;
  * The agent processes item from the items stream and build an inventory aggregate
  * per item
  */
-@ApplicationScoped
+@Singleton
 public class ItemProcessingAgent {
+    private static final Logger LOG = Logger.getLogger(ItemProcessingAgent.class.getName()); 
     // store to keep stock per store-id
     public static String ITEMS_STOCK_KAFKA_STORE_NAME = "ItemStock";
-    public String itemInventoryOutputStreamName= "item.inventory";
+    @ConfigProperty(name="app.item.inventory.topic",defaultValue = "item.inventory")
+    public String itemInventoryOutputStreamName;
 
     // input streams
     public ItemTransactionStream inItemsAsStream;
     
     public ItemProcessingAgent() {
-        this.inItemsAsStream = new ItemTransactionStream();
+       /* 
         Optional<String> v =ConfigProvider.getConfig().getOptionalValue("app.item.inventory.topic", String.class);
         if (v.isPresent()) {
             this.itemInventoryOutputStreamName = v.get();
         }
+        */
+        LOG.info("ItemProcessingAgent created produce to " + itemInventoryOutputStreamName);
     }
 
     /**
-     * The topology processes the items stream into two different paths: one
-     * to compute the sum of items sold per item-id, the other to compute
-     * the inventory per store. An app can have one topology.
+     * The topology processes the items stream to compute the sum of items sold per item-id, 
      **/  
     @Produces
     public Topology processItemTransaction(){
+        this.inItemsAsStream = new ItemTransactionStream();
         KStream<String,ItemTransaction> items = inItemsAsStream.getItemStreams();     
-        // process items and aggregate at the store level 
+        // process items and aggregate at the item level 
         KTable<String,ItemInventory> itemItemInventory = items
-            // use store name as key, which is what the item event is also using
+            // the key is the store name
             .map((k,transaction) -> {
                 ItemInventory newRecord = new ItemInventory();
                 newRecord.updateStockQuantityFromTransaction(transaction.sku, transaction);
