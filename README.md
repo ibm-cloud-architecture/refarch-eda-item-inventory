@@ -72,7 +72,7 @@ d4f74a23cf6c   quay.io/ibmcase/eda-store-simulator:0.0.10 0.0.0.0:8081->8080/tcp
 curl -X POST   -H 'accept: application/json' -H 'Content-Type: application/json' http://localhost:8081/api/stores/v1/startControlled -d '{ "records": 1, "backend": "KAFKA"}'  
 ```
 
-The trace inside the item inventory code should list
+The trace inside the item inventory code should list:
 
 ```sh
 [KTABLE-TOSTREAM-0000000006]: Item_2, { itemID: Item_2 -> 0
@@ -122,11 +122,11 @@ to deploy Kafka, configure topic, users and deploy the components.
   ```sh
   oc apply -f https://raw.githubusercontent.com/ibm-cloud-architecture/eda-lab-inventory/master/environments/openshift-pipelines/operator.yaml
   ```
+  
 * Install the needed tasks to build app (some are provided as clustertask, some need updates): 
 
   ```sh
   oc apply -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/maven/0.2/maven.yaml
-
   ```
 
 * Defines resources and pipeline:
