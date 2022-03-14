@@ -1,4 +1,4 @@
-package ibm.gse.eda.inventory.infra.api;
+package ibm.gse.eda.items.infra.api;
 
 import java.util.logging.Logger;
 

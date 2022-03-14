@@ -1,11 +1,11 @@
-package ibm.gse.eda.inventory.infra.api.dto;
+package ibm.gse.eda.items.infra.api.dto;
 
 import java.util.Optional;
 import java.util.OptionalInt;
 
 import org.apache.kafka.streams.state.HostInfo;
 
-import ibm.gse.eda.inventory.domain.ItemInventory;
+import ibm.gse.eda.items.domain.ItemInventory;
 
 public class ItemCountQueryResult {
     private static ItemCountQueryResult NOT_FOUND = new ItemCountQueryResult(null, null, null);

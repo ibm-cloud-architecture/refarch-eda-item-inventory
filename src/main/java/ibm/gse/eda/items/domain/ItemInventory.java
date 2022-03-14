@@ -1,6 +1,5 @@
-package ibm.gse.eda.inventory.domain;
+package ibm.gse.eda.items.domain;
 
-import io.quarkus.kafka.client.serialization.JsonbSerde;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 /**
@@ -9,7 +8,6 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 @RegisterForReflection
 public class ItemInventory {
 
-    public static JsonbSerde<ItemInventory> itemInventorySerde = new JsonbSerde<>(ItemInventory.class);
    
     public String itemID;
     public Long currentStock = 0L;

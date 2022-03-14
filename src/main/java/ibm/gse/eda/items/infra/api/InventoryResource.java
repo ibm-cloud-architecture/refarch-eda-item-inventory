@@ -1,4 +1,4 @@
-package ibm.gse.eda.inventory.infra.api;
+package ibm.gse.eda.items.infra.api;
 
 import java.util.logging.Logger;
 
@@ -12,8 +12,8 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 
-import ibm.gse.eda.inventory.infra.api.dto.ItemCountQueryResult;
-import ibm.gse.eda.inventory.infra.api.dto.PipelineMetadata;
+import ibm.gse.eda.items.infra.api.dto.ItemCountQueryResult;
+import ibm.gse.eda.items.infra.api.dto.PipelineMetadata;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 

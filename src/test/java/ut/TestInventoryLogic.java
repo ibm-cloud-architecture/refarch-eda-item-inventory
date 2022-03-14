@@ -3,8 +3,8 @@ package ut;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import ibm.gse.eda.inventory.domain.ItemInventory;
-import ibm.gse.eda.inventory.domain.ItemTransaction;
+import ibm.gse.eda.items.domain.ItemInventory;
+import ibm.gse.eda.items.domain.ItemTransaction;
 
 public class TestInventoryLogic {
 
