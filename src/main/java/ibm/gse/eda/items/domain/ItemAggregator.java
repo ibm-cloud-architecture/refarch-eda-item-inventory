@@ -32,7 +32,7 @@ public class ItemAggregator {
     // store to keep stock per item-id
     public static String ITEMS_STOCK_KAFKA_STORE_NAME = "ItemStock";
      // Input stream is item transaction from the store machines
-    @ConfigProperty(name="app.items.topic", defaultValue = "items")
+    @ConfigProperty(name="app.item.topic", defaultValue = "items")
     public String itemSoldInputStreamName;
 
     @ConfigProperty(name="app.item.inventory.topic",defaultValue = "item.inventory")
