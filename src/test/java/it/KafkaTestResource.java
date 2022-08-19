@@ -32,9 +32,10 @@ import io.strimzi.test.container.StrimziKafkaContainer;
 public class KafkaTestResource implements QuarkusTestResourceLifecycleManager {
 
     private static Network network = Network.newNetwork();
-    public static final StrimziKafkaContainer kafkaContainer = new StrimziKafkaContainer("cp.icr.io/cp/ibm-eventstreams-kafka:10.5.0")
+    public static final StrimziKafkaContainer kafkaContainer = new StrimziKafkaContainer("cp.icr.io/cp/ibm-eventstreams-kafka:11.0.2")
     .withNetwork(network)
     .withNetworkAliases("kafka")
+    .withBrokerId(1)
     .withExposedPorts(9092)
     .withKraft().waitForRunning();
 
@@ -69,6 +70,11 @@ public class KafkaTestResource implements QuarkusTestResourceLifecycleManager {
     @Override
     public void stop() {
         kafkaContainer.close();
+    }
+
+
+    public static String getBootstrapServers() {
+        return kafkaContainer.getBootstrapServers();
     }
     
 }

@@ -39,7 +39,7 @@ public class ItemAggregator {
     public String itemInventoryOutputStreamName;
     
     public ItemAggregator() {
-        LOG.info("ItemProcessingAgent created produce to " + itemInventoryOutputStreamName);
+        LOG.info("ItemProcessingAgent created produces to " + itemInventoryOutputStreamName);
     }
 
     /**
